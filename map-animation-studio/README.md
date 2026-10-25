@@ -16,7 +16,31 @@ All the data is free and accurate, and most of it ships in this folder:
 | Flags (250+) | `flag-icons` (MIT) | Waving animation |
 | Sound effects | Synthesised by `scripts/make-sfx.mjs` | Your own, royalty-free |
 
-## Setup
+## Map Animation Studio app (your own editor)
+
+The studio has its own editor that runs in your browser. Nothing else needs to be open.
+
+**Windows:** double-click **`Start Map Studio.bat`**. The first start installs its components, which takes a few minutes. After that, your browser opens **http://localhost:7272**. Keep the black window open while you work. Run `npm run shortcut` once to put a *Map Animation Studio* icon on your desktop.
+**macOS/Linux:** run `./start-map-studio.sh` (or `npm start`).
+
+The screen is laid out like Cutroom:
+
+| Area | What it does |
+|---|---|
+| **Left: Add / Templates / Media** | Add any layer at the playhead: highlight area, flag/photo/video inside an area, route, pin, radar, callout, arrow, map label, text, location card, image, video, waving flag, counter, GPS HUD, sound. **Templates** adds any of the 30 ready-made animations as a *scene* on the timeline, or starts a new project from one. **Media** uploads your photos, videos and audio; they are copied into `public/media`. |
+| **Centre: preview** | Live preview. Drag the selected layer to move it, scroll to scale it, Shift+scroll to rotate it. With **Rec** on, those moves become keyframes at the playhead. Drop files on the preview to add them. |
+| **Right: inspector** | **Layer**: every setting, with place search (countries, states, 7,300+ cities, landmarks). **Animate**: keyframes (opacity, scale, x, y, rotate, easing) and presets. **Camera**: camera keyframes (place, zoom, bearing, 3D pitch, fly/smooth/cut). **Project**: frame size, length, map look, borders, map details, sun, sound. |
+| **Bottom: timeline** | One track per layer, plus a camera track. Drag bars to move them, drag their edges to trim. Drag the diamonds to retime keyframes, and double-click the camera row to add a camera key. Snapping is on (hold Alt to turn it off), and Ctrl+wheel zooms. Drag the end marker to change the length. |
+
+**Export** renders the MP4 on your PC at the highest quality (H.264 CRF 12, slow preset, PNG frames, BT.709, 320 kbps audio), or as ProRes 4444 `.mov`, or as a quick draft, in any frame size including 4K and Shorts. Files go to `out/`. The first export downloads the render browser (about 100 MB, once).
+
+**Saving:** **Ctrl+S** saves to `projects/`, and after that the project autosaves. Use *Project → Download project file* to keep a copy anywhere. Undo/redo goes back up to 150 steps.
+
+**Shortcuts:** Space play · ←/→ frame · K keyframe · R record · S split · Del delete · Ctrl+D duplicate · Ctrl+Z / Ctrl+Shift+Z undo/redo.
+
+A misspelt place name doesn't stop the preview: that element is skipped and a ⚠ warning shows on the preview.
+
+## Remotion Studio (optional, for developers)
 
 ```bash
 cd map-animation-studio
@@ -46,7 +70,7 @@ Every composition also has a **format** prop (16:9 1080p / 4K, 9:16, 1:1, 4:5) a
 ### 00 · Map Composer: your own timeline with keyframes
 `MapComposer` is the free-form editor. Add **layers**; each one appears as a bar on the Studio timeline from `startSec` to `endSec`. Layer types:
 
-`highlight` · `region-media` (photo/video/flag inside a country or state) · `route` · `pin` · `radar` · `callout` · `arrow` · `map-label` · `text` · `location-card` · `image` · `video` · `flag` · `counter` · `hud` · `sfx`
+`highlight` · `region-media` (photo/video/flag inside a country or state) · `route` · `pin` · `radar` · `callout` · `arrow` · `map-label` · `text` · `location-card` · `image` · `video` · `flag` · `counter` · `hud` · `sfx` · `scene` (plays any of the 30 templates, full-frame or scaled down as picture-in-picture)
 
 * **Keyframes** (`keys`): each key sets `opacity`, `scale`, `x`, `y` and `rotate` at a time `t` (seconds from the layer's start), with an easing (`linear`, `ease-in`, `ease-out`, `ease-in-out`, `back`, `elastic`, `bounce`, `hold`). Keys combine freely, and layers stack.
 * **Camera keyframes** (`camera`): place, zoom, bearing, 3D pitch, and how the camera gets there (`fly` = Google-Earth zoom-out/in, `smooth`, `linear`, `cut`).

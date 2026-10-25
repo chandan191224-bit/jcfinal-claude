@@ -1,7 +1,7 @@
 {
   "name": "map-animation-studio",
   "version": "1.0.0",
-  "description": "Map & travel animation studio for YouTube videos (Remotion)",
+  "description": "Map & travel animation studio for YouTube videos: browser editor app + Remotion engine",
   "repository": {},
   "license": "UNLICENSED",
   "engines": {
@@ -10,14 +10,18 @@
   "private": true,
   "dependencies": {
     "@react-three/fiber": "^9.8.2",
+    "@remotion/bundler": "4.0.538",
     "@remotion/cli": "4.0.538",
     "@remotion/google-fonts": "4.0.538",
     "@remotion/media": "4.0.538",
     "@remotion/noise": "4.0.538",
     "@remotion/paths": "4.0.538",
+    "@remotion/player": "4.0.538",
+    "@remotion/renderer": "4.0.538",
     "@remotion/three": "4.0.538",
     "@remotion/transitions": "4.0.538",
     "@remotion/zod-types": "4.0.538",
+    "@vitejs/plugin-react": "^5.2.0",
     "d3-geo": "^3.1.1",
     "d3-geo-projection": "^4.0.0",
     "d3-interpolate": "^3.0.1",
@@ -26,6 +30,7 @@
     "remotion": "4.0.538",
     "three": "^0.169.0",
     "topojson-client": "^3.1.0",
+    "vite": "^7.3.7",
     "zod": "4.5.4"
   },
   "devDependencies": {
@@ -34,6 +39,7 @@
     "@types/d3-interpolate": "^3.0.4",
     "@types/geojson": "^7946.0.16",
     "@types/react": "19.2.7",
+    "@types/react-dom": "^19.2.3",
     "@types/three": "^0.169.0",
     "@types/topojson-client": "^3.1.5",
     "@types/topojson-server": "^3.0.4",
@@ -47,6 +53,10 @@
     "typescript": "5.9.3"
   },
   "scripts": {
+    "start": "node server/server.mjs",
+    "app": "node server/server.mjs",
+    "build-app": "vite build",
+    "shortcut": "node scripts/make-shortcut.mjs",
     "dev": "remotion studio",
     "studio": "remotion studio",
     "render": "node scripts/render.mjs",

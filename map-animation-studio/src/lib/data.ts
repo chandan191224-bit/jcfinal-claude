@@ -21,6 +21,18 @@ export function loadOnce<T>(key: string, loader: () => Promise<T>): Promise<T> {
 
 export const peek = <T,>(key: string) => ready.get(key) as T | undefined;
 
+/**
+ * The editor app sets `window.__MAP_STUDIO_SOFT_ERRORS__` so a typo (an unknown place, a missing
+ * file) leaves that one element out of the preview and shows a warning, instead of stopping the
+ * whole preview. Renders keep failing loudly.
+ */
+const softErrors = () => typeof window !== "undefined" && (window as { __MAP_STUDIO_SOFT_ERRORS__?: boolean }).__MAP_STUDIO_SOFT_ERRORS__ === true;
+
+const reportError = (err: unknown) => {
+  const message = err instanceof Error ? err.message : String(err);
+  window.dispatchEvent(new CustomEvent("map-studio-error", { detail: message }));
+};
+
 export const fetchJson = <T,>(file: string) =>
   loadOnce<T>(`json:${file}`, async () => {
     const res = await fetch(file.startsWith("http") ? file : staticFile(file));
@@ -81,9 +93,10 @@ export function useAsset<T>(key: string | null, loader: () => Promise<T>, option
         continueRender(handle);
       })
       .catch((err) => {
-        if (optional) {
+        if (optional || softErrors()) {
           console.warn(err);
           pending.delete(key);
+          if (!optional) reportError(err);
           continueRender(handle);
         } else {
           cancelRender(err);
