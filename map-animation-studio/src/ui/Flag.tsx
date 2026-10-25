@@ -27,7 +27,7 @@ export const WavingFlag: React.FC<{
     const slope = Math.cos(phase) * k;
     const light = wave ? slope * 0.22 : 0;
     items.push(
-      <div key={i} style={{ position: "absolute", left: x, top: dy, width: sw + 0.8, height, overflow: "hidden" }}>
+      <div key={i} style={{ position: "absolute", left: x, top: dy, width: sw + 2, height, overflow: "hidden" }}>
         <Img src={src} style={{ position: "absolute", left: -x, top: 0, width, height, maxWidth: "none" }} />
         <div
           style={{

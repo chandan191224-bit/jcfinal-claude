@@ -47,7 +47,7 @@ button { cursor: pointer; }
 .chip.ok { color: var(--ok); border-color: rgba(87, 209, 139, 0.4); }
 .chip.warn { color: var(--warn); border-color: rgba(255, 179, 71, 0.45); }
 .sp { flex: 1; }
-.btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 32px; padding: 0 11px; border-radius: 8px; border: 1px solid var(--line); background: var(--raise); font-weight: 500; white-space: nowrap; }
+.btn { text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 32px; padding: 0 11px; border-radius: 8px; border: 1px solid var(--line); background: var(--raise); font-weight: 500; white-space: nowrap; }
 .btn:hover:not(:disabled) { border-color: #3d4556; background: var(--raise2); }
 .btn:disabled { opacity: 0.4; cursor: default; }
 .btn.pri { background: var(--primary); color: var(--onprimary); border-color: transparent; font-weight: 600; }

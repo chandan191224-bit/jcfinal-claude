@@ -1,7 +1,7 @@
 import React, { useCallback, useDeferredValue, useEffect, useRef, useState } from "react";
 import type { PlayerRef } from "@remotion/player";
 import { TEMPLATE_BY_ID, type TemplateDef } from "../src/registry";
-import { api, type MediaItem, type ProjectInfo } from "./api";
+import { projects, type MediaItem, type ProjectInfo } from "./assets";
 import {
   FPS,
   addKeyAt,
@@ -60,7 +60,7 @@ export const App: React.FC = () => {
   const [sel, setSelRaw] = useState<Sel>({ kind: "none" });
   const [itab, setItab] = useState<ITab>("project");
   const [recording, setRecording] = useState(false);
-  const [online, setOnline] = useState(false);
+  const [exporting, setExporting] = useState(false);
   const [toast, setToast] = useState<{ msg: string; bad?: boolean } | null>(null);
   const [warnings, setWarnings] = useState<{ msg: string; at: number }[]>([]);
   const [dialog, setDialog] = useState<"export" | "open" | "help" | null>(null);
@@ -116,20 +116,6 @@ export const App: React.FC = () => {
   /* ---------- server, autosave, warnings ---------- */
 
   useEffect(() => {
-    let alive = true;
-    const check = async () => {
-      const h = await api.health();
-      if (alive) setOnline(Boolean(h));
-    };
-    check();
-    const id = window.setInterval(check, 8000);
-    return () => {
-      alive = false;
-      window.clearInterval(id);
-    };
-  }, []);
-
-  useEffect(() => {
     const id = window.setTimeout(() => storage.set(LS_PROJECT, project), 300);
     document.title = `${project.name || "Untitled"} · Map Animation Studio`;
     return () => window.clearTimeout(id);
@@ -140,28 +126,24 @@ export const App: React.FC = () => {
 
   const save = useCallback(
     async (quiet = false, as?: string) => {
-      if (!online) {
-        if (!quiet) sayBad("Saving to your computer needs the studio server. Use Download instead, or start the studio with “Start Map Studio”.");
-        return;
-      }
       const name = as ?? file ?? `${slug(project.name)}.json`;
       try {
-        const info = await api.saveProject(name, project);
+        const info = await projects.save(name, project.name, project);
         setFile(info.file);
         setSavedRev(project);
-        if (!quiet) say(`Saved to projects/${info.file}`);
+        if (!quiet) say(`Saved “${project.name}”. Find it under Project → Open.`);
       } catch (e) {
         sayBad(`Could not save: ${(e as Error).message}`);
       }
     },
-    [online, file, project, say, sayBad],
+    [file, project, say, sayBad],
   );
-  // Autosave to the projects folder once the project has a file.
+  // Autosave once the project has been saved.
   useEffect(() => {
-    if (!online || !file || savedRev === project) return;
+    if (!file || savedRev === project || exporting) return;
     const id = window.setTimeout(() => save(true), 2500);
     return () => window.clearTimeout(id);
-  }, [online, file, project, savedRev, save]);
+  }, [file, project, savedRev, save, exporting]);
 
   useEffect(() => {
     const h = (e: Event) => {
@@ -348,7 +330,7 @@ export const App: React.FC = () => {
   const selKey = sel.kind === "layer" ? sel.key : null;
 
   return (
-    <MediaProvider online={online} onError={sayBad}>
+    <MediaProvider onError={sayBad}>
       <MediaBridge target={media} />
       <div className="app">
         <header className="top">
@@ -365,11 +347,6 @@ export const App: React.FC = () => {
             <Icon name="redo" />
           </button>
           <span className="sp" />
-          {!online ? (
-            <span className="chip warn" title="Saving to your computer, uploading media and exporting need the studio server (Start Map Studio).">
-              Preview only
-            </span>
-          ) : null}
           <Menu
             align="right"
             button={(open) => (
@@ -573,15 +550,14 @@ export const App: React.FC = () => {
         </div>
       </div>
 
-      {dialog === "export" ? <ExportDialog project={project} online={online} onClose={() => setDialog(null)} /> : null}
+      {dialog === "export" ? <ExportDialog project={project} onBusy={setExporting} onClose={() => setDialog(null)} /> : null}
       {dialog === "open" ? (
         <OpenDialog
-          online={online}
           onClose={() => setDialog(null)}
           onOpen={async (info) => {
             if (!confirmReplace()) return;
             try {
-              const raw = await api.loadProject(info.file);
+              const raw = await projects.load(info.file);
               loadProject(normalizeProject(raw as Partial<Project>), info.file);
               setDialog(null);
               say(`Opened ${info.name}`);
@@ -611,19 +587,19 @@ const MediaBridge: React.FC<{ target: React.MutableRefObject<{ upload: (f: File[
   return null;
 };
 
-const OpenDialog: React.FC<{ online: boolean; onClose: () => void; onOpen: (p: ProjectInfo) => void; onTemplate: (id: string) => void }> = ({ online, onClose, onOpen, onTemplate }) => {
+const OpenDialog: React.FC<{ onClose: () => void; onOpen: (p: ProjectInfo) => void; onTemplate: (id: string) => void }> = ({ onClose, onOpen, onTemplate }) => {
   const [list, setList] = useState<ProjectInfo[] | null>(null);
+  const refresh = () =>
+    projects
+      .list()
+      .then(setList)
+      .catch(() => setList([]));
   useEffect(() => {
-    if (online)
-      api
-        .listProjects()
-        .then(setList)
-        .catch(() => setList([]));
-  }, [online]);
+    refresh();
+  }, []);
   return (
     <Dialog title="Open project" onClose={onClose}>
-      {!online ? <p className="hint">Projects saved on your computer appear here when the studio server is running.</p> : null}
-      {list && list.length === 0 ? <p className="hint">No saved projects yet. Use Save (Ctrl+S) and they appear here, in the studio's projects folder.</p> : null}
+      {list && list.length === 0 ? <p className="hint">No saved projects yet. Press Save (Ctrl+S) and your projects appear here. They are kept in this browser; use Project → Download project file for a copy you can move to another computer.</p> : null}
       <div className="plist">
         {(list ?? []).map((p) => (
           <div className="prow" key={p.file}>
@@ -635,6 +611,9 @@ const OpenDialog: React.FC<{ online: boolean; onClose: () => void; onOpen: (p: P
               </small>
             </div>
             <span className="sp" />
+            <button className="btn sm ghost danger" onClick={() => window.confirm(`Delete “${p.name}”?`) && projects.remove(p.file).then(refresh)} aria-label={`Delete ${p.name}`}>
+              <Icon name="trash" />
+            </button>
             <button className="btn sm pri" onClick={() => onOpen(p)}>
               Open
             </button>
@@ -673,7 +652,7 @@ const HelpDialog: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     ["Del", "Delete the selected layer or keyframe"],
     ["Ctrl+D", "Duplicate the selected layer"],
     ["Ctrl+Z / Ctrl+Shift+Z", "Undo / redo"],
-    ["Ctrl+S", "Save to the projects folder"],
+    ["Ctrl+S", "Save (kept in this browser; Project → Open lists them)"],
     ["Ctrl+wheel on the timeline", "Zoom the timeline"],
     ["Alt while dragging", "No snapping"],
     ["Drag / wheel / Shift+wheel on the preview", "Move / scale / rotate the selected layer"],

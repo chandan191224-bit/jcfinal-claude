@@ -1,62 +1,64 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { fetchJson } from "../src/lib/data";
 import { SFX } from "../src/fx/Sfx";
-import { api, type MediaItem } from "./api";
+import { assetNames, assetUrl, kindOf, media, type MediaItem } from "./assets";
 import { Dialog, Icon } from "./ui";
 
-/* ---------- shared media library state ---------- */
+export { kindOf };
+
+/* ---------- shared media library state (stored in this browser) ---------- */
 
 type MediaCtx = {
   items: MediaItem[];
   refresh: () => void;
   upload: (files: FileList | File[]) => Promise<MediaItem[]>;
+  remove: (path: string) => Promise<void>;
   uploading: string | null;
   online: boolean;
 };
 
-const Ctx = createContext<MediaCtx>({ items: [], refresh: () => {}, upload: async () => [], uploading: null, online: false });
+const Ctx = createContext<MediaCtx>({ items: [], refresh: () => {}, upload: async () => [], remove: async () => {}, uploading: null, online: true });
 export const useMedia = () => useContext(Ctx);
 
-export const MediaProvider: React.FC<{ online: boolean; onError: (m: string) => void; children: React.ReactNode }> = ({ online, onError, children }) => {
+export const MediaProvider: React.FC<{ onError: (m: string) => void; children: React.ReactNode }> = ({ onError, children }) => {
   const [items, setItems] = useState<MediaItem[]>([]);
   const [uploading, setUploading] = useState<string | null>(null);
   const refresh = useCallback(() => {
-    if (!online) return;
-    api
-      .listMedia()
+    media
+      .list()
       .then(setItems)
       .catch(() => {});
-  }, [online]);
+  }, []);
   useEffect(refresh, [refresh]);
   const upload = useCallback(
     async (files: FileList | File[]) => {
       const done: MediaItem[] = [];
-      if (!online) {
-        onError("Uploading needs the studio server. Start it with \"Start Map Studio\".");
-        return done;
-      }
       for (const f of Array.from(files)) {
         try {
-          setUploading(`${f.name} 0%`);
-          done.push(await api.upload(f, (p) => setUploading(`${f.name} ${Math.round(p * 100)}%`)));
+          setUploading(f.name);
+          done.push(await media.add(f));
         } catch (e) {
-          onError(`Could not upload ${f.name}: ${(e as Error).message}`);
+          onError(`Could not add ${f.name}: ${(e as Error).message}`);
         }
       }
       setUploading(null);
       refresh();
       return done;
     },
-    [online, onError, refresh],
+    [onError, refresh],
   );
-  const v = useMemo(() => ({ items, refresh, upload, uploading, online }), [items, refresh, upload, uploading, online]);
+  const remove = useCallback(
+    async (path: string) => {
+      await media.remove(path);
+      refresh();
+    },
+    [refresh],
+  );
+  const v = useMemo(() => ({ items, refresh, upload, remove, uploading, online: true }), [items, refresh, upload, remove, uploading]);
   return <Ctx.Provider value={v}>{children}</Ctx.Provider>;
 };
 
-export const kindOf = (path: string): MediaItem["kind"] =>
-  /\.(mp4|webm|mov|m4v|mkv)$/i.test(path) ? "video" : /\.(png|jpe?g|webp|gif|svg|avif)$/i.test(path) ? "image" : /\.(mp3|wav|m4a|aac|ogg|flac)$/i.test(path) ? "audio" : "data";
-
-export const mediaUrl = (path: string) => (/^(https?:|data:|blob:)/.test(path) ? path : `/${path.replace(/^\/?public\//, "").replace(/^\//, "")}`);
+export const mediaUrl = (path: string) => (/^(https?:|data:|blob:)/.test(path) ? path : (assetUrl(path) ?? `/${path.replace(/^\/?public\//, "").replace(/^\//, "")}`));
 
 export const Thumb: React.FC<{ path: string; kind?: MediaItem["kind"] }> = ({ path, kind = kindOf(path) }) => (
   <div className="mthumb">
@@ -67,9 +69,9 @@ export const Thumb: React.FC<{ path: string; kind?: MediaItem["kind"] }> = ({ pa
 /* ---------- flags ---------- */
 
 type CountryTopo = { objects: { countries: { geometries: { properties: { name: string; en: string; iso2: string } }[] } } };
+const EXTRA_FLAGS: Record<string, string> = { eu: "European Union", un: "United Nations", "gb-eng": "England", "gb-sct": "Scotland", "gb-wls": "Wales", "gb-nir": "Northern Ireland", asean: "ASEAN", arab: "Arab League" };
 
 export const useFlags = () => {
-  const { online } = useMedia();
   const [flags, setFlags] = useState<{ code: string; name: string }[]>([]);
   useEffect(() => {
     let alive = true;
@@ -80,18 +82,19 @@ export const useFlags = () => {
         const c = g.properties;
         if (c.iso2 && /^[a-z]{2}$/.test(c.iso2)) names.set(c.iso2, c.en && c.en.length < c.name.length ? c.en : c.name);
       }
-      let codes: string[] = [...names.keys()];
-      if (online) codes = await api.flags().catch(() => codes);
-      const extra: Record<string, string> = { eu: "European Union", un: "United Nations", "gb-eng": "England", "gb-sct": "Scotland", "gb-wls": "Wales", "gb-nir": "Northern Ireland", asean: "ASEAN", arab: "Arab League" };
-      const list = codes.map((code) => ({ code, name: names.get(code) ?? extra[code] ?? code.toUpperCase() })).sort((a, b) => a.name.localeCompare(b.name));
+      const embedded = assetNames("flags/").filter((n) => n.endsWith(".svg")).map((n) => n.slice(6, -4));
+      const codes = embedded.length ? embedded : [...names.keys(), ...Object.keys(EXTRA_FLAGS)];
+      const list = codes.map((code) => ({ code, name: names.get(code) ?? EXTRA_FLAGS[code] ?? code.toUpperCase() })).sort((a, b) => a.name.localeCompare(b.name));
       if (alive) setFlags(list);
     })().catch(() => {});
     return () => {
       alive = false;
     };
-  }, [online]);
+  }, []);
   return flags;
 };
+
+export const flagUrl = (code: string) => mediaUrl(`flags/${code}.svg`);
 
 export const FlagGrid: React.FC<{ value: string; onPick: (code: string) => void }> = ({ value, onPick }) => {
   const flags = useFlags();
@@ -103,7 +106,7 @@ export const FlagGrid: React.FC<{ value: string; onPick: (code: string) => void 
       <div className="flaggrid">
         {shown.map((f) => (
           <button key={f.code} type="button" className={value === f.code ? "sel" : ""} onClick={() => onPick(f.code)} title={f.name}>
-            <img src={`/flags/${f.code}.svg`} alt="" loading="lazy" />
+            <img src={flagUrl(f.code)} alt="" loading="lazy" />
             <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{f.name}</span>
           </button>
         ))}
@@ -122,7 +125,7 @@ export const MediaPicker: React.FC<{ title?: string; accept: MediaItem["kind"][]
   onPick,
   onClose,
 }) => {
-  const { items, upload, uploading, online } = useMedia();
+  const { items, upload, uploading } = useMedia();
   const [tab, setTab] = useState<"files" | "flags">(allowFlags && (value.startsWith("flag") || !accept.length) ? "flags" : "files");
   const [url, setUrl] = useState("");
   const shown = items.filter((m) => accept.includes(m.kind));
@@ -155,7 +158,7 @@ export const MediaPicker: React.FC<{ title?: string; accept: MediaItem["kind"][]
               onPick(up[0].path);
               onClose();
             }
-          }} busy={uploading} disabled={!online} />
+          }} busy={uploading} />
           {shown.length ? (
             <div className="media-grid" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(150px, 1fr))" }}>
               {shown.map((m) => (
@@ -173,7 +176,7 @@ export const MediaPicker: React.FC<{ title?: string; accept: MediaItem["kind"][]
               ))}
             </div>
           ) : (
-            <p className="hint">{online ? "No files yet. Upload photos or videos above; they are copied into public/media in your studio folder." : "Start the studio with \"Start Map Studio\" to upload files."}</p>
+            <p className="hint">No files yet. Add photos or videos above; they are kept in this browser, ready next time you open the studio.</p>
           )}
           <div className="rowf">
             <input type="text" placeholder="…or paste a link (https://…)" value={url} onChange={(e) => setUrl(e.target.value)} />
@@ -213,7 +216,7 @@ export const UploadZone: React.FC<{ accept: string; onFiles: (f: File[]) => void
       }}
     >
       <Icon name="upload" size={22} />
-      <span>{busy ? `Uploading ${busy}` : "Drop photos, videos or audio here"}</span>
+      <span>{busy ? `Adding ${busy}…` : "Drop photos, videos or audio here"}</span>
       <label className={`btn sm ${disabled ? "" : "pri"}`} style={disabled ? { opacity: 0.4, pointerEvents: "none" } : undefined}>
         Choose files
         <input
@@ -294,7 +297,7 @@ export const MediaField: React.FC<{ kind: MediaFieldKind; value: string; onChang
         <div style={{ width: 64, flex: "none", borderRadius: 6, overflow: "hidden", border: "1px solid var(--line)" }}>
           {value.startsWith("flag:") ? (
             <div className="mthumb">
-              <img src={`/flags/${value.slice(5)}.svg`} alt="" />
+              <img src={flagUrl(value.slice(5))} alt="" />
             </div>
           ) : value && !isFlag ? (
             <Thumb path={value} />

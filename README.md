@@ -37,7 +37,11 @@ another `sample-script-*.md`, and the style guide is updated from it.
 
 # Map Animation Studio
 
-`map-animation-studio/` is a Remotion project for map and travel animations: flight paths, road trips on real highways, 3D terrain flyovers, country highlights, flags inside countries, a keyframe timeline composer and more. See [map-animation-studio/README.md](map-animation-studio/README.md).
+`map-animation-studio/` makes map and travel animations: flight paths, road trips on real highways, 3D terrain flyovers, country highlights, flags inside countries, and a keyframe timeline. See [map-animation-studio/README.md](map-animation-studio/README.md).
+
+**To use it, double-click [`map-animation-studio/Map Animation Studio.html`](map-animation-studio/Map%20Animation%20Studio.html).** It's one file that opens in Chrome or Edge with no install, and exports MP4.
+
+For developers, the Remotion Studio version:
 
 ```
 cd map-animation-studio && npm install && npm run studio

@@ -16,29 +16,33 @@ All the data is free and accurate, and most of it ships in this folder:
 | Flags (250+) | `flag-icons` (MIT) | Waving animation |
 | Sound effects | Synthesised by `scripts/make-sfx.mjs` | Your own, royalty-free |
 
-## Map Animation Studio app (your own editor)
+## Map Animation Studio app: one file, no install
 
-The studio has its own editor that runs in your browser. Nothing else needs to be open.
-
-**Windows:** double-click **`Start Map Studio.bat`**. The first start installs its components, which takes a few minutes. After that, your browser opens **http://localhost:7272**. Keep the black window open while you work. Run `npm run shortcut` once to put a *Map Animation Studio* icon on your desktop.
-**macOS/Linux:** run `./start-map-studio.sh` (or `npm start`).
+**`Map Animation Studio.html`** is the whole studio in one file. Double-click it and it opens in Chrome or Edge, like Paper Studio Pro. There is no terminal, no install and no server. All the map data (borders, states, cities, roads, rivers, satellite imagery, flags, sounds) is inside the file, about 20 MB, so it works offline. Fonts load from Google Fonts when you are online.
 
 The screen is laid out like Cutroom:
 
 | Area | What it does |
 |---|---|
-| **Left: Add / Templates / Media** | Add any layer at the playhead: highlight area, flag/photo/video inside an area, route, pin, radar, callout, arrow, map label, text, location card, image, video, waving flag, counter, GPS HUD, sound. **Templates** adds any of the 30 ready-made animations as a *scene* on the timeline, or starts a new project from one. **Media** uploads your photos, videos and audio; they are copied into `public/media`. |
+| **Left: Add / Templates / Media** | Add any layer at the playhead: highlight area, flag/photo/video inside an area, route, pin, radar, callout, arrow, map label, text, location card, image, video, waving flag, counter, GPS HUD, sound. **Templates** adds any of the 30 ready-made animations as a *scene* on the timeline, or starts a new project from one. **Media** adds your photos, videos and audio. They are kept inside the browser (IndexedDB) and are there next time. |
 | **Centre: preview** | Live preview. Drag the selected layer to move it, scroll to scale it, Shift+scroll to rotate it. With **Rec** on, those moves become keyframes at the playhead. Drop files on the preview to add them. |
 | **Right: inspector** | **Layer**: every setting, with place search (countries, states, 7,300+ cities, landmarks). **Animate**: keyframes (opacity, scale, x, y, rotate, easing) and presets. **Camera**: camera keyframes (place, zoom, bearing, 3D pitch, fly/smooth/cut). **Project**: frame size, length, map look, borders, map details, sun, sound. |
 | **Bottom: timeline** | One track per layer, plus a camera track. Drag bars to move them, drag their edges to trim. Drag the diamonds to retime keyframes, and double-click the camera row to add a camera key. Snapping is on (hold Alt to turn it off), and Ctrl+wheel zooms. Drag the end marker to change the length. |
 
-**Export** renders the MP4 on your PC at the highest quality (H.264 CRF 12, slow preset, PNG frames, BT.709, 320 kbps audio), or as ProRes 4444 `.mov`, or as a quick draft, in any frame size including 4K and Shorts. Files go to `out/`. The first export downloads the render browser (about 100 MB, once).
+**Export** makes the video inside the browser, frame by frame, so nothing is dropped even if the preview stutters. It uses the computer's video encoder (WebCodecs) and saves the file to your Downloads folder:
+- **Highest quality MP4**: H.264 at about 40 Mbit/s for 1080p and 120 Mbit/s for 4K, with 320 kbps AAC audio.
+- **Smaller MP4**: about 16 Mbit/s for 1080p.
+- **WebM (VP9)**: for browsers that can't make MP4.
 
-**Saving:** **Ctrl+S** saves to `projects/`, and after that the project autosaves. Use *Project → Download project file* to keep a copy anywhere. Undo/redo goes back up to 150 steps.
+Every frame size works: 1080p, 4K, Shorts 9:16, 1:1 and 4:5. Keep the tab in front while it exports.
 
-**Shortcuts:** Space play · ←/→ frame · K keyframe · R record · S split · Del delete · Ctrl+D duplicate · Ctrl+Z / Ctrl+Shift+Z undo/redo.
+**Saving:** **Ctrl+S** saves the project in the browser (*Project → Open* lists your projects), and after that it autosaves. *Project → Download project file* gives you a `.json` copy for another computer. Undo/redo goes back up to 150 steps.
+
+**Shortcuts:** Space play · ←/→ frame · K keyframe · R record · S split · Del delete · Ctrl+D duplicate · Ctrl+Z / Ctrl+Shift+Z undo/redo · Ctrl+S save · Ctrl+O open.
 
 A misspelt place name doesn't stop the preview: that element is skipped and a ⚠ warning shows on the preview.
+
+**Rebuilding the file** (developers): `npm run build-html` writes a new `Map Animation Studio.html`. `npm run app` runs the editor from source with live reload.
 
 ## Remotion Studio (optional, for developers)
 

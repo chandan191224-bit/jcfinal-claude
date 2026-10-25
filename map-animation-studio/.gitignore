@@ -7,8 +7,8 @@ dist
 out
 .data-cache
 
-# Editor app
+# Editor app build
 app-dist
-projects/*.json
+.html-build
 public/media/*
 !public/media/.gitkeep

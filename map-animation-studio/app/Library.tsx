@@ -3,7 +3,7 @@ import { FOLDERS, TEMPLATES, type TemplateDef } from "../src/registry";
 import { LAYER_META, LAYER_ORDER, humanize, templateDuration, type LayerType } from "./model";
 import { Icon, LAYER_ICON } from "./ui";
 import { Thumb, UploadZone, useMedia } from "./Media";
-import type { MediaItem } from "./api";
+import type { MediaItem } from "./assets";
 
 type Tab = "add" | "templates" | "media";
 
@@ -15,7 +15,7 @@ export const Library: React.FC<{
 }> = ({ onAdd, onAddScene, onNewFromTemplate, onUseMedia }) => {
   const [tab, setTab] = useState<Tab>("add");
   const [q, setQ] = useState("");
-  const { items, upload, uploading, online } = useMedia();
+  const { items, upload, uploading, remove } = useMedia();
   const groups: [string, LayerType[]][] = [
     ["On the map", LAYER_ORDER.filter((t) => LAYER_META[t].group === "map")],
     ["On screen", LAYER_ORDER.filter((t) => LAYER_META[t].group === "screen")],
@@ -89,20 +89,30 @@ export const Library: React.FC<{
           </div>
         ) : (
           <div className="pad">
-            <UploadZone accept="image/*,video/*,audio/*,.gpx,.geojson,.json" onFiles={(f) => upload(f)} busy={uploading} disabled={!online} />
-            {!online ? <p className="hint">The studio server is not running, so files can't be added. Start the studio with “Start Map Studio”.</p> : null}
+            <UploadZone accept="image/*,video/*,audio/*,.gpx,.geojson,.json" onFiles={(f) => upload(f)} busy={uploading} />
             {items.length ? (
               <div className="media-grid">
                 {items.map((m) => (
-                  <button key={m.path} className="mitem" onClick={() => onUseMedia(m)} title={`${m.path} · click to add to the timeline`}>
-                    <Thumb path={m.path} kind={m.kind} />
-                    <span>{m.name}</span>
-                  </button>
+                  <div key={m.path} className="mitem" style={{ position: "relative" }}>
+                    <button className="mitem" style={{ border: 0, borderRadius: 0 }} onClick={() => onUseMedia(m)} title={`${m.name} · click to add to the timeline at the playhead`}>
+                      <Thumb path={m.path} kind={m.kind} />
+                      <span>{m.name}</span>
+                    </button>
+                    <button
+                      className="btn sm icon"
+                      style={{ position: "absolute", top: 4, right: 4, background: "rgba(10,12,16,.75)" }}
+                      onClick={() => window.confirm(`Remove ${m.name} from the studio?`) && remove(m.path)}
+                      aria-label={`Remove ${m.name}`}
+                      title="Remove"
+                    >
+                      <Icon name="trash" />
+                    </button>
+                  </div>
                 ))}
               </div>
-            ) : online ? (
-              <p className="hint">Your photos, videos and sounds appear here. Files are copied into the studio's public/media folder.</p>
-            ) : null}
+            ) : (
+              <p className="hint">Your photos, videos and sounds appear here. They are kept inside this browser (nothing is uploaded to the internet). Click one to add it to the timeline.</p>
+            )}
           </div>
         )}
       </div>
