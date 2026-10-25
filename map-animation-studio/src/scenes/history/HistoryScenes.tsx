@@ -359,7 +359,7 @@ export const ParticleStreams: React.FC<z.infer<typeof particleSchema>> = (p) => 
         pts.push(...greatCircle([a.lon, a.lat], [b.lon, b.lat], 8));
       }
     return fitCamera(p.projection, pts, width, height, 0.1);
-  }, [places, names, p.frame, p.projection, width, height]);
+  }, [places, names, p.frame, p.flows, p.projection, width, height]);
   if (!places || !camera) return <AbsoluteFill style={{ background: theme.oceanEdge }} />;
   const at = (n: string) => {
     const pl = places[names.indexOf(n)];

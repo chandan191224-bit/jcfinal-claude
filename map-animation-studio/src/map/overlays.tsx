@@ -309,12 +309,14 @@ export const Callout: React.FC<{
   dy?: number;
   width?: number;
   color?: string;
-}> = ({ at, title, text, media, start = 0, dx = 220, dy = -180, width = 420, color }) => {
+}> = ({ at, title, text, media, start = 0, dx: dxIn, dy = -180, width = 420, color }) => {
   const m = useMap();
   const frame = useCurrentFrame();
   const t = frame - start;
   if (t < 0 || !m.visible(at)) return null;
   const q = project3D(m, at);
+  // Without an explicit offset the box opens away from the centre, toward the nearer edge.
+  const dx = dxIn ?? (q.x > m.width / 2 ? 220 : -220);
   const c = color ?? m.theme.accent;
   const line = easeOutCubic(clamp(t / 12));
   const box = easeOutBack(clamp((t - 10) / 16));

@@ -674,6 +674,41 @@ export const RemotionRoot: React.FC = () => {
             title: "",
           }}
         />
+        <Composition
+          id="PulsingMarkers"
+          component={MapComposer}
+          schema={composerSchema}
+          calculateMetadata={composerMetadata}
+          fps={30}
+          width={1920}
+          height={1080}
+          durationInFrames={300}
+          defaultProps={{
+            format: "16:9 1080p",
+            durationSec: 10,
+            theme: "dark",
+            borders: "india",
+            sfx: true,
+            sfxVolume: 0.25,
+            projectFile: "",
+            projection: "mercator",
+            camera: [
+              { t: 0, place: "India", zoom: 2.4, bearing: 0, pitch: 0, move: "cut", ease: "linear" },
+              { t: 10, place: "India", zoom: 2.6, bearing: 0, pitch: 0, move: "smooth", ease: "linear" },
+            ],
+            layers: [
+              { name: "Target 1", type: "radar", startSec: 0.5, endSec: 10, places: ["Mumbai"], level: "auto", radiusKm: 0, highlightStyle: "glow", routeStyle: "glow", mode: "road", vehicle: "car", cardStyle: "documentary", pinVariant: "pin", color: "#ff3b3b", text: "MUMBAI", subtext: "", media: "", wave: true, value: 0, anchor: "center", size: 70, keys: [] },
+              { name: "Target 2", type: "radar", startSec: 1.5, endSec: 10, places: ["Chennai"], level: "auto", radiusKm: 0, highlightStyle: "glow", routeStyle: "glow", mode: "road", vehicle: "car", cardStyle: "documentary", pinVariant: "pin", color: "#ffb347", text: "CHENNAI", subtext: "", media: "", wave: true, value: 0, anchor: "center", size: 70, keys: [] },
+              { name: "Target 3", type: "radar", startSec: 2.5, endSec: 10, places: ["Kolkata"], level: "auto", radiusKm: 0, highlightStyle: "glow", routeStyle: "glow", mode: "road", vehicle: "car", cardStyle: "documentary", pinVariant: "pin", color: "#00e5ff", text: "KOLKATA", subtext: "", media: "", wave: true, value: 0, anchor: "center", size: 70, keys: [] },
+              { name: "Callout Mumbai", type: "callout", startSec: 3.5, endSec: 10, places: ["Mumbai"], level: "auto", radiusKm: 0, highlightStyle: "glow", routeStyle: "glow", mode: "road", vehicle: "car", cardStyle: "documentary", pinVariant: "pin", color: "#ff3b3b", text: "Mumbai", subtext: "Financial capital of India", media: "", wave: true, value: 0, anchor: "center", size: 60, keys: [] },
+              { name: "Callout Kolkata", type: "callout", startSec: 5, endSec: 10, places: ["Kolkata"], level: "auto", radiusKm: 0, highlightStyle: "glow", routeStyle: "glow", mode: "road", vehicle: "car", cardStyle: "documentary", pinVariant: "pin", color: "#00e5ff", text: "Kolkata", subtext: "Gateway to the east", media: "", wave: true, value: 0, anchor: "center", size: 60, keys: [] },
+              { name: "Ping", type: "sfx", startSec: 0.5, endSec: 1.6, places: [], level: "auto", radiusKm: 0, highlightStyle: "glow", routeStyle: "glow", mode: "road", vehicle: "car", cardStyle: "documentary", pinVariant: "pin", color: "auto", text: "", subtext: "", media: "ping", wave: true, value: 0, anchor: "center", size: 60, keys: [] },
+            ],
+            mapLayers: { countryLabels: true, states: true, roads: false, rail: false, rivers: true, graticule: false },
+            dayNight: false,
+            dateTimeUtc: "2025-06-21T06:00:00Z",
+          }}
+        />
       </Folder>
       <Folder name="5-Historical-Geopolitical">
         <Composition

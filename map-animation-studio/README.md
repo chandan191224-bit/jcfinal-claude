@@ -75,7 +75,7 @@ Every composition also has a **format** prop (16:9 1080p / 4K, 9:16, 1:1, 4:5) a
 `MatchCut` (iris / window / zoom-blur / reverse into your footage), `GeoZoomPush` (satellite snap push with speed lines and flash), `HudOverlay` (GPS telemetry over footage or a 3D terrain chase, with circular minimap), `KineticLocationCard` (6 card styles), `SearchFlyTo` (search bar types the place, then the globe flies there).
 
 ### 4 · Isometric & infographic
-`PopUpMiniatures` (3D landmark models spring up as the route reaches them), `ExtrudedCity` (isometric city; give it a GeoJSON of real building footprints via `buildingsFile`), plus `PulsingMarkers`-style radar/callout layers inside the Map Composer.
+`PopUpMiniatures` (3D landmark models spring up as the route reaches them), `ExtrudedCity` (isometric city; give it a GeoJSON of real building footprints via `buildingsFile`), `PulsingMarkers` (radar-ring targets with callout boxes that can hold a photo or video preview; it is a Map Composer preset, so you can add more layers).
 
 ### 5 · Historical & geopolitical
 `FrontlineShift` (moving front lines, territory shading limited to chosen countries, military arrows, date ticker), `EmpireExpansion` (choropleth timeline with add/remove steps; the default is EU enlargement 1957→2020), `ParticleStreams` (migration/trade flows), `UnfoldingPaperMap` (a 3D folded map unfolds, then the route is drawn; the default is Vasco da Gama's 1497–98 voyage via coastal waypoints).
