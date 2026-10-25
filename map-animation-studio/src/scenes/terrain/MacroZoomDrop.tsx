@@ -90,7 +90,7 @@ export const MacroZoomDrop: React.FC<z.infer<typeof macroZoomSchema>> = (p) => {
       {src && mediaIn > 0 ? (
         <AbsoluteFill style={{ opacity: mediaIn, scale: String(interpolate(mediaIn, [0, 1], [1.15, 1])) }}>
           {isVideoFile(p.endMedia) ? (
-            <Video src={src} muted style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+            <Video src={src} muted objectFit="cover" style={{ width: "100%", height: "100%" }} />
           ) : (
             <Img src={src} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
           )}

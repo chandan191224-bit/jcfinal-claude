@@ -104,7 +104,7 @@ export const RegionFill: React.FC<{ spec: RegionMediaSpec; shape: Shape; alpha?:
   const content = !src ? (
     <div style={{ width: bw, height: bh, background: "linear-gradient(135deg,#3a6b5a,#c9a46a)" }} />
   ) : src.video ? (
-    <Video src={src.src} muted style={{ width: w, height: h, objectFit: "fill" }} />
+    <Video src={src.src} muted objectFit="fill" style={{ width: w, height: h }} />
   ) : spec.wave ? (
     <WavingFlag src={src.src} width={w} height={h} amplitude={0.035} />
   ) : (

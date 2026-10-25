@@ -2,13 +2,13 @@ import React, { useMemo } from "react";
 import { z } from "zod";
 import { AbsoluteFill, useCurrentFrame, useVideoConfig } from "remotion";
 import type { GeoProjection } from "d3-geo";
-import { MapView, MapOverlay, useMap, type CanvasPainter } from "../../map/MapView";
+import { MapView, MapOverlay, findCountry, useMap, type CanvasPainter } from "../../map/MapView";
 import { highlightDefaults, useAreaHighlights, type HighlightSpec } from "../../map/useAreaHighlights";
 import { routeGeometry, routeHead, routePathD, project3D } from "../../map/routeGeometry";
 import { base, zProjection } from "../../lib/schema";
-import { THEMES } from "../../lib/themes";
+import { THEMES, type Theme } from "../../lib/themes";
 import { fitCamera, type Camera } from "../../lib/camera";
-import { clamp, easeInOutCubic, easeOutCubic, lerp } from "../../lib/geo";
+import { clamp, easeInOutCubic, easeOutCubic, greatCircle, lerp } from "../../lib/geo";
 import { parseCoords, type LonLat } from "../../lib/places";
 import { usePlaces } from "../../lib/useTrip";
 import { Finish } from "../../fx/Finish";
@@ -38,11 +38,11 @@ function resample(line: LonLat[], n: number): LonLat[] {
   });
 }
 
-const DateTicker: React.FC<{ text: string; sub?: string; color: string; fontName: string }> = ({ text, sub, color, fontName }) => {
+const DateTicker: React.FC<{ text: string; sub?: string; color: string; fontName: string; theme: Theme }> = ({ text, sub, color, fontName, theme }) => {
   const { height } = useVideoConfig();
   const u = height / 1080;
   return (
-    <div style={{ position: "absolute", right: 90 * u, top: 70 * u, textAlign: "right", color: "white", textShadow: "0 4px 20px rgba(0,0,0,0.6)" }}>
+    <div style={{ position: "absolute", right: 90 * u, top: 70 * u, textAlign: "right", color: theme.label, textShadow: `0 2px 18px ${theme.labelHalo}, 0 0 4px ${theme.labelHalo}` }}>
       <div style={{ font: `700 ${96 * u}px ${font(fontName)}`, lineHeight: 1, fontVariantNumeric: "tabular-nums" }}>{text}</div>
       <div style={{ height: 5 * u, background: color, marginTop: 8 * u }} />
       {sub ? <div style={{ font: `500 ${28 * u}px ${font("Inter")}`, marginTop: 10 * u, opacity: 0.9, maxWidth: 700 * u }}>{sub}</div> : null}
@@ -56,6 +56,7 @@ export const frontlineSchema = z.object({
   ...base,
   projection: zProjection,
   frame: z.array(z.string()).describe("Places/coordinates the camera frames"),
+  clipTo: z.array(z.string()).describe("Countries the territory shading is limited to (empty = all land)"),
   sideA: z.object({ name: z.string(), color: z.string(), holds: z.enum(["north", "south", "east", "west"]) }),
   sideB: z.object({ name: z.string(), color: z.string() }),
   lines: z
@@ -73,7 +74,6 @@ export const frontlineSchema = z.object({
   title: z.string(),
 });
 
-const DIRS = { north: [0, 1], south: [0, -1], east: [1, 0], west: [-1, 0] } as const;
 
 export const FrontlineShift: React.FC<z.infer<typeof frontlineSchema>> = (p) => {
   const frame = useCurrentFrame();
@@ -94,12 +94,22 @@ export const FrontlineShift: React.FC<z.infer<typeof frontlineSchema>> = (p) => 
       if (t > 0.5) label = lines[i].label;
     }
   }
-  const dir = DIRS[p.sideA.holds];
+  // Territory polygons: the front line closed off far away on each side.
+  const holds = p.sideA.holds;
+  const ns = holds === "north" || holds === "south";
+  const line = ns ? (cur[0][0] <= cur[cur.length - 1][0] ? cur : [...cur].reverse()) : cur[0][1] <= cur[cur.length - 1][1] ? cur : [...cur].reverse();
+  const a = line[0];
+  const b = line[line.length - 1];
   const far = 60;
-  const polyA: LonLat[] = [...cur, [cur[cur.length - 1][0] + dir[0] * far, cur[cur.length - 1][1] + dir[1] * far], [cur[0][0] + dir[0] * far, cur[0][1] + dir[1] * far]];
-  const polyB: LonLat[] = [...cur, [cur[cur.length - 1][0] - dir[0] * far, cur[cur.length - 1][1] - dir[1] * far], [cur[0][0] - dir[0] * far, cur[0][1] - dir[1] * far]];
+  const side = (dir: 1 | -1): LonLat[] =>
+    ns
+      ? [...line, [b[0] + far, b[1]], [b[0] + far, b[1] + dir * far], [a[0] - far, a[1] + dir * far], [a[0] - far, a[1]]]
+      : [...line, [b[0], b[1] + far], [b[0] + dir * far, b[1] + far], [a[0] + dir * far, a[1] - far], [a[0], a[1] - far]];
+  const aDir = holds === "north" || holds === "east" ? 1 : -1;
+  const polyA = side(aDir as 1 | -1);
+  const polyB = side(-aDir as 1 | -1);
   const paint: CanvasPainter = (ctx, path, projection, world) => {
-    const land = world.mid.countries;
+    const land = p.clipTo.length ? p.clipTo.map((c) => findCountry(world, c, "hi")).filter((f): f is NonNullable<typeof f> => !!f) : world.mid.countries;
     const fillPoly = (poly: LonLat[], color: string) => {
       ctx.save();
       ctx.beginPath();
@@ -128,7 +138,7 @@ export const FrontlineShift: React.FC<z.infer<typeof frontlineSchema>> = (p) => 
       </MapView>
       <Finish theme={theme} />
       <Legend items={[{ name: p.sideA.name, color: p.sideA.color }, { name: p.sideB.name, color: p.sideB.color }]} title={p.title} fontName={theme.titleFont} />
-      {label ? <DateTicker text={label} color={theme.accent} fontName={theme.titleFont} /> : null}
+      {label ? <DateTicker text={label} color={theme.accent} fontName={theme.titleFont} theme={theme} /> : null}
       {p.arrows.map((a, i) => (
         <Sfx key={i} name="whoosh-down" at={a.startSec * fps} volume={p.sfxVolume * 0.6} enabled={p.sfx} />
       ))}
@@ -179,6 +189,7 @@ export const MilitaryArrow: React.FC<{ path: LonLat[]; start: number; end: numbe
   const g = useMemo(() => routeGeometry(m, path, 0.35), [m, path]);
   if (path.length < 2 || frame < start) return null;
   const t = easeOutCubic(clamp((frame - start) / Math.max(1, end - start)));
+  const fade = 1 - 0.65 * clamp((frame - end - 45) / 30);
   const head = routeHead(g, t);
   const body = routePathD(g, 0, Math.max(0.001, t - 0.02), m.width);
   const a = (head.angle * Math.PI) / 180;
@@ -190,7 +201,7 @@ export const MilitaryArrow: React.FC<{ path: LonLat[]; start: number; end: numbe
   const ny = Math.cos(a);
   const headD = `M${tip[0]},${tip[1]} L${back[0] + nx * hw},${back[1] + ny * hw} L${back[0] - nx * hw},${back[1] - ny * hw} Z`;
   return (
-    <g>
+    <g opacity={fade}>
       <path d={body} fill="none" stroke="rgba(0,0,0,0.45)" strokeWidth={width + 8} strokeLinecap="butt" strokeLinejoin="round" />
       <path d={body} fill="none" stroke={color} strokeWidth={width} strokeLinecap="butt" strokeLinejoin="round" opacity={0.92} />
       <path d={headD} fill={color} stroke="rgba(0,0,0,0.45)" strokeWidth={4} strokeLinejoin="round" />
@@ -277,7 +288,7 @@ export const EmpireExpansion: React.FC<z.infer<typeof expansionSchema>> = (p) =>
       {p.title ? (
         <div style={{ position: "absolute", left: 90, top: 70, font: `700 ${height * 0.06}px ${font(theme.titleFont)}`, color: theme.label, textShadow: `0 0 16px ${theme.labelHalo}` }}>{p.title}</div>
       ) : null}
-      {current ? <DateTicker text={current.label} sub={current.caption} color={current.color} fontName={theme.titleFont} /> : null}
+      {current ? <DateTicker text={current.label} sub={current.caption} color={current.color} fontName={theme.titleFont} theme={theme} /> : null}
       {p.note ? <div style={{ position: "absolute", left: 90, bottom: 40, font: `400 ${height * 0.018}px ${font("Inter")}`, color: theme.label, opacity: 0.7 }}>{p.note}</div> : null}
       {p.steps.map((s, i) => (
         <Sfx key={i} name={s.action === "add" ? "pop" : "whoosh-down"} at={s.atSec * fps} volume={p.sfxVolume} enabled={p.sfx} />
@@ -340,7 +351,14 @@ export const ParticleStreams: React.FC<z.infer<typeof particleSchema>> = (p) => 
   const camera = useMemo<Camera | null>(() => {
     if (!places) return null;
     const framePl = p.frame.length ? places.slice(names.length) : places.slice(0, names.length);
-    return fitCamera(p.projection, framePl.map((x) => [x.lon, x.lat] as LonLat), width, height, 0.12);
+    const pts = framePl.map((x) => [x.lon, x.lat] as LonLat);
+    if (!p.frame.length)
+      for (const f of p.flows) {
+        const a = places[names.indexOf(f.from)];
+        const b = places[names.indexOf(f.to)];
+        pts.push(...greatCircle([a.lon, a.lat], [b.lon, b.lat], 8));
+      }
+    return fitCamera(p.projection, pts, width, height, 0.1);
   }, [places, names, p.frame, p.projection, width, height]);
   if (!places || !camera) return <AbsoluteFill style={{ background: theme.oceanEdge }} />;
   const at = (n: string) => {

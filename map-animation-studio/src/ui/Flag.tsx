@@ -1,5 +1,5 @@
 import React from "react";
-import { useCurrentFrame } from "remotion";
+import { Img, useCurrentFrame } from "remotion";
 
 /**
  * A flag (or any image) waving in the wind: the picture is cut into vertical strips that ride a
@@ -27,19 +27,8 @@ export const WavingFlag: React.FC<{
     const slope = Math.cos(phase) * k;
     const light = wave ? slope * 0.22 : 0;
     items.push(
-      <div
-        key={i}
-        style={{
-          position: "absolute",
-          left: x,
-          top: dy,
-          width: sw + 0.8,
-          height,
-          backgroundImage: `url("${src}")`,
-          backgroundSize: `${width}px ${height}px`,
-          backgroundPosition: `${-x}px 0px`,
-        }}
-      >
+      <div key={i} style={{ position: "absolute", left: x, top: dy, width: sw + 0.8, height, overflow: "hidden" }}>
+        <Img src={src} style={{ position: "absolute", left: -x, top: 0, width, height, maxWidth: "none" }} />
         <div
           style={{
             position: "absolute",

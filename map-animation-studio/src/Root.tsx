@@ -4,6 +4,7 @@ import { Composition, Folder } from "remotion";
 import { sizeFromProps } from "./lib/schema";
 import { FlightPath, flightPathSchema } from "./scenes/routes/FlightPath";
 import { MapHighlights, mapHighlightsSchema } from "./scenes/highlights/MapHighlights";
+import { HighlightCatalog, catalogSchema } from "./scenes/highlights/HighlightCatalog";
 import { DemMountainSweep, demSweepSchema } from "./scenes/terrain/DemMountainSweep";
 import { VehicleRoute, vehicleRouteSchema } from "./scenes/routes/VehicleRoute";
 import { ParchmentCrawl, parchmentSchema } from "./scenes/routes/ParchmentCrawl";
@@ -22,7 +23,8 @@ import {
 } from "./scenes/transitions/TravelTransitions";
 import { DayNightGlobe, dayNightSchema, PolaroidPinDrop, polaroidSchema, SplitScreenTracker, splitScreenSchema } from "./scenes/vlog/VlogScenes";
 import { RegionMediaFill, regionMediaSchema } from "./scenes/regions/RegionMediaFill";
-import { MapComposer, composerSchema } from "./scenes/composer/MapComposer";
+import { MapComposer, composerMetadata, composerSchema } from "./scenes/composer/MapComposer";
+import { ExtrudedCity, citySchema, LandmarkSwivel, PopUpMiniatures, popUpSchema, swivelSchema, UnfoldingPaperMap, unfoldSchema } from "./scenes/three/ThreeScenes";
 import { EmpireExpansion, expansionSchema, FrontlineShift, frontlineSchema, ParticleStreams, particleSchema } from "./scenes/history/HistoryScenes";
 
 export const RemotionRoot: React.FC = () => {
@@ -247,13 +249,99 @@ export const RemotionRoot: React.FC = () => {
             endMedia: "",
           }}
         />
+              <Composition
+          id="LandmarkSwivel"
+          component={LandmarkSwivel}
+          schema={swivelSchema}
+          calculateMetadata={sizeFromProps}
+          fps={30}
+          width={1920}
+          height={1080}
+          durationInFrames={300}
+          defaultProps={{
+            format: "16:9 1080p",
+            durationSec: 10,
+            theme: "vlog",
+            borders: "india",
+            sfx: true,
+            sfxVolume: 0.25,
+            landmark: "Taj Mahal",
+            model: "auto",
+            turnDeg: 360,
+            heightDeg: 28,
+            distance: 7,
+            city: true,
+            tiltShift: 6,
+            label: true,
+          }}
+        />
+        <Composition
+          id="TiltShiftCity"
+          component={ExtrudedCity}
+          schema={citySchema}
+          calculateMetadata={sizeFromProps}
+          fps={30}
+          width={1920}
+          height={1080}
+          durationInFrames={300}
+          defaultProps={{
+            format: "16:9 1080p",
+            durationSec: 10,
+            theme: "vlog",
+            borders: "india",
+            sfx: true,
+            sfxVolume: 0.25,
+            look: "tilt-shift",
+            seed: 42,
+            blocks: 9,
+            palette: "pastel",
+            buildingsFile: "",
+            traffic: true,
+            title: "",
+          }}
+        />
+        <Composition
+          id="LowPolyTerrain"
+          component={DemMountainSweep}
+          schema={demSweepSchema}
+          calculateMetadata={sizeFromProps}
+          fps={30}
+          width={1920}
+          height={1080}
+          durationInFrames={300}
+          defaultProps={{
+            format: "16:9 1080p",
+            durationSec: 10,
+            theme: "vlog",
+            borders: "india",
+            sfx: true,
+            sfxVolume: 0.25,
+            target: "Mount Fuji",
+            radiusKm: 12,
+            terrainStyle: "lowpoly",
+            move: "orbit",
+            exaggeration: 1.6,
+            headingDeg: 180,
+            distanceKm: 22,
+            heightKm: 6,
+            turnDeg: 140,
+            fov: 40,
+            sunAzimuth: 120,
+            sunElevation: 35,
+            fog: 0.3,
+            snowline: 3000,
+            peaks: [],
+            showCard: true,
+            letterbox: false,
+          }}
+        />
       </Folder>
       <Folder name="00-Map-Composer">
         <Composition
           id="MapComposer"
           component={MapComposer}
           schema={composerSchema}
-          calculateMetadata={sizeFromProps}
+          calculateMetadata={composerMetadata}
           fps={30}
           width={1920}
           height={1080}
@@ -293,6 +381,56 @@ export const RemotionRoot: React.FC = () => {
         />
       </Folder>
       <Folder name="0-Map-Highlights">
+        <Composition
+          id="HighlightCatalog"
+          component={HighlightCatalog}
+          schema={catalogSchema}
+          calculateMetadata={sizeFromProps}
+          fps={30}
+          width={1920}
+          height={1080}
+          durationInFrames={180}
+          defaultProps={{
+            format: "16:9 1080p",
+            durationSec: 6,
+            theme: "dark",
+            borders: "india",
+            sfx: false,
+            sfxVolume: 0.25,
+            target: "India",
+            color: "#ffb347",
+          }}
+        />
+        <Composition
+          id="CountrySpotlightGlobe"
+          component={MapHighlights}
+          schema={mapHighlightsSchema}
+          calculateMetadata={sizeFromProps}
+          fps={30}
+          width={1920}
+          height={1080}
+          durationInFrames={300}
+          defaultProps={{
+            format: "16:9 1080p",
+            durationSec: 10,
+            theme: "satellite",
+            borders: "india",
+            sfx: true,
+            sfxVolume: 0.25,
+            projection: "globe",
+            cameraMode: "tour",
+            fixedCenter: "",
+            fixedZoom: 0,
+            highlights: [
+              { target: "Japan", level: "country", radiusKm: 0, style: "spotlight", color: "#ffd34d", startSec: 1.5, endSec: 5, label: "auto", sublabel: "Land of the rising sun" },
+              { target: "Brazil", level: "country", radiusKm: 0, style: "pop-out", color: "#2ecc71", startSec: 6.5, endSec: 0, label: "auto", sublabel: "" },
+            ],
+            countryLabels: false,
+            stateBorders: false,
+            title: "",
+            subtitle: "",
+          }}
+        />
         <Composition
           id="RegionMediaFill"
           component={RegionMediaFill}
@@ -485,7 +623,93 @@ export const RemotionRoot: React.FC = () => {
           }}
         />
       </Folder>
+      <Folder name="4-Isometric-and-Infographic">
+        <Composition
+          id="PopUpMiniatures"
+          component={PopUpMiniatures}
+          schema={popUpSchema}
+          calculateMetadata={sizeFromProps}
+          fps={30}
+          width={1920}
+          height={1080}
+          durationInFrames={360}
+          defaultProps={{
+            format: "16:9 1080p",
+            durationSec: 12,
+            theme: "vlog",
+            borders: "india",
+            sfx: true,
+            sfxVolume: 0.25,
+            stops: ["Eiffel Tower", "Colosseum", "Great Pyramid of Giza", "Taj Mahal"],
+            mode: "flight",
+            routeColor: "auto",
+            modelScale: 1.2,
+            pitch: 52,
+            turnDeg: 40,
+            labels: true,
+          }}
+        />
+        <Composition
+          id="ExtrudedCity"
+          component={ExtrudedCity}
+          schema={citySchema}
+          calculateMetadata={sizeFromProps}
+          fps={30}
+          width={1920}
+          height={1080}
+          durationInFrames={300}
+          defaultProps={{
+            format: "16:9 1080p",
+            durationSec: 10,
+            theme: "minimal",
+            borders: "india",
+            sfx: true,
+            sfxVolume: 0.25,
+            look: "isometric",
+            seed: 7,
+            blocks: 10,
+            palette: "corporate",
+            buildingsFile: "",
+            traffic: false,
+            title: "",
+          }}
+        />
+      </Folder>
       <Folder name="5-Historical-Geopolitical">
+        <Composition
+          id="UnfoldingPaperMap"
+          component={UnfoldingPaperMap}
+          schema={unfoldSchema}
+          calculateMetadata={sizeFromProps}
+          fps={30}
+          width={1920}
+          height={1080}
+          durationInFrames={360}
+          defaultProps={{
+            format: "16:9 1080p",
+            durationSec: 12,
+            theme: "parchment",
+            borders: "world",
+            sfx: true,
+            sfxVolume: 0.3,
+            stops: [
+              "Lisbon",
+              "Cape Verde (14.9, -23.5)",
+              "Cape of Good Hope (-34.36, 18.47)",
+              "Mossel Bay (-34.18, 22.14)",
+              "Natal coast (-30.0, 32.0)",
+              "Mozambique Channel (-25.5, 35.5)",
+              "Mozambique Island (-15.03, 40.73)",
+              "Malindi (-3.22, 40.12)",
+              "Calicut (11.25, 75.78)",
+            ],
+            mode: "sea",
+            routeColor: "auto",
+            columns: 4,
+            unfoldSec: 3.5,
+            table: "#5a3d26",
+          }}
+        />
         <Composition
           id="FrontlineShift"
           component={FrontlineShift}
@@ -504,6 +728,7 @@ export const RemotionRoot: React.FC = () => {
             sfxVolume: 0.25,
             projection: "mercator",
             frame: ["Seoul", "Pyongyang", "Busan", "42.3, 130.5", "39.5, 124.2"],
+            clipTo: ["North Korea", "South Korea"],
             sideA: { name: "North Korea & China", color: "#d62828", holds: "north" },
             sideB: { name: "South Korea & UN", color: "#1d4ed8" },
             lines: [
@@ -665,7 +890,7 @@ export const RemotionRoot: React.FC = () => {
             steps: [
               { target: "India", level: "country", radiusKm: 0, style: "outline-draw", color: "#ffb347", label: "auto" },
               { target: "Uttarakhand", level: "state", radiusKm: 0, style: "glow", color: "#00e5ff", label: "auto" },
-              { target: "Kedarnath", level: "radius", radiusKm: 12, style: "ring", color: "#ff5a36", label: "Kedarnath" },
+              { target: "Kedarnath", level: "radius", radiusKm: 40, style: "ring", color: "#ff5a36", label: "Kedarnath" },
             ],
             beatTimesSec: [],
             music: "",

@@ -1,0 +1,20 @@
+{
+  "durationSec": 12,
+  "theme": "dark",
+  "projection": "mercator",
+  "camera": [
+    { "t": 0, "place": "India", "zoom": 2.1, "bearing": 0, "pitch": 0, "move": "cut", "ease": "linear" },
+    { "t": 3, "place": "Delhi", "zoom": 4.2, "bearing": 0, "pitch": 0, "move": "fly", "ease": "ease-in-out" },
+    { "t": 10, "place": "Mumbai", "zoom": 4.3, "bearing": 0, "pitch": 25, "move": "fly", "ease": "ease-in-out" }
+  ],
+  "layers": [
+    { "name": "Flag in India", "type": "region-media", "startSec": 0.3, "endSec": 3, "places": ["India"], "media": "flag" },
+    { "name": "Title", "type": "text", "startSec": 0.5, "endSec": 3, "text": "DELHI → MUMBAI", "anchor": "top", "size": 84,
+      "keys": [
+        { "t": 0, "opacity": 0, "scale": 1, "x": 0, "y": 60, "rotate": 0, "ease": "linear" },
+        { "t": 0.6, "opacity": 1, "scale": 1, "x": 0, "y": 0, "rotate": 0, "ease": "back" }
+      ] },
+    { "name": "Road trip", "type": "route", "startSec": 3, "endSec": 10.5, "places": ["Delhi", "Jaipur", "Ahmedabad", "Mumbai"], "mode": "road", "vehicle": "car", "routeStyle": "double" },
+    { "name": "Arrival", "type": "location-card", "startSec": 10, "endSec": 12, "places": ["Mumbai"], "anchor": "bottom-left" }
+  ]
+}

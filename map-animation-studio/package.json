@@ -1,7 +1,7 @@
 {
   "name": "map-animation-studio",
   "version": "1.0.0",
-  "description": "My Remotion video",
+  "description": "Map & travel animation studio for YouTube videos (Remotion)",
   "repository": {},
   "license": "UNLICENSED",
   "engines": {
@@ -48,6 +48,11 @@
   },
   "scripts": {
     "dev": "remotion studio",
+    "studio": "remotion studio",
+    "render": "node scripts/render.mjs",
+    "build-data": "node --max-old-space-size=8000 scripts/build-data.mjs",
+    "make-sfx": "node scripts/make-sfx.mjs",
+    "cache-terrain": "node scripts/cache-terrain.mjs",
     "build": "remotion bundle",
     "upgrade": "remotion upgrade",
     "lint": "eslint src && tsc"

@@ -71,7 +71,7 @@ export const EarthZoomChain: React.FC<z.infer<typeof earthZoomSchema>> = (p) => 
   const areas = useAreaHighlights(specs, frame, fps, theme, p.borders);
   const shapes = useAreaShapes(specs, p.borders);
   const cams = useMemo<Camera[] | null>(
-    () => (shapes ? shapes.map((s) => fitCamera(p.projection, shapePoints(s.feature), width, height, 0.22, 11)) : null),
+    () => (shapes ? shapes.map((s) => fitCamera(p.projection, shapePoints(s.feature), width, height, 0.22, 8)) : null),
     [shapes, p.projection, width, height],
   );
   if (!cams || !cams.length) return <AbsoluteFill style={{ background: theme.space }} />;

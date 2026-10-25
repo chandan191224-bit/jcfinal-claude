@@ -9,7 +9,7 @@ import { highlightDefaults, useAreaHighlights, useAreaShapes } from "../../map/u
 import { RegionFill, regionMediaDefaults } from "../../map/RegionFill";
 import { project3D } from "../../map/routeGeometry";
 import { MilitaryArrow } from "../history/HistoryScenes";
-import { base, zProjection, zRouteMode, zRouteStyle, zVehicle } from "../../lib/schema";
+import { base, sizeFromProps, zProjection, zRouteMode, zRouteStyle, zVehicle } from "../../lib/schema";
 import { THEMES, type Theme } from "../../lib/themes";
 import { cam, fitCamera, flyTo, mixCamera, type Camera } from "../../lib/camera";
 import { clamp, easeInOutCubic, formatKm, subsolarPoint } from "../../lib/geo";
@@ -495,4 +495,14 @@ export const MapComposer: React.FC<ComposerProps> = (p) => {
     ? { ...p, ...file, layers: (file.layers ?? p.layers).map((l) => layerDefaults(l as Layer)), camera: file.camera ?? p.camera }
     : p;
   return <ComposerInner {...merged} />;
+};
+
+/** Frame size and duration, taking them from the project file when one is set. */
+export const composerMetadata = async ({ props }: { props: ComposerProps }) => {
+  let p = props;
+  if (props.projectFile) {
+    const res = await fetch(staticFile(props.projectFile));
+    if (res.ok) p = { ...props, ...((await res.json()) as Partial<ComposerProps>) };
+  }
+  return sizeFromProps({ props: p });
 };

@@ -348,7 +348,7 @@ export const Callout: React.FC<{
           {src ? (
             <div style={{ width: "100%", height: mediaH, overflow: "hidden", background: "#000" }}>
               {isVideo ? (
-                <Video src={src} muted style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                <Video src={src} muted objectFit="cover" style={{ width: "100%", height: "100%" }} />
               ) : (
                 <Img src={src} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
               )}

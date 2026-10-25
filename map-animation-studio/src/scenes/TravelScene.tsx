@@ -118,7 +118,6 @@ function useTimeline(trip: Trip | null, p: TravelProps, fps: number, total: numb
     };
     const stopFrame = whole ? legsFrac.map((fr) => intro + Math.round(fr * (total - intro - outro))) : arrivals;
     return { progress, intro, outro, arrivalFrames: stopFrame, travelEnd: total - outro };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [trip, p.introSec, p.outroSec, p.stopPauseSec, p.easing, fps, total]);
 }
 

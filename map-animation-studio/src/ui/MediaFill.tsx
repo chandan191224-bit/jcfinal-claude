@@ -33,7 +33,7 @@ export const MediaFill: React.FC<{ src: string; label?: string; volume?: number;
   return (
     <AbsoluteFill style={style}>
       {isVideoFile(src) ? (
-        <Video src={url} volume={volume} muted={volume === 0} trimBefore={Math.round(trimBeforeSec * 30)} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+        <Video src={url} volume={volume} muted={volume === 0} trimBefore={Math.round(trimBeforeSec * 30)} objectFit="cover" style={{ width: "100%", height: "100%" }} />
       ) : (
         <Img src={url} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
       )}

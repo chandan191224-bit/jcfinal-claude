@@ -32,3 +32,13 @@ Each run produces:
 
 To make it sound even more like you, share more of your scripts. Each one gets saved as
 another `sample-script-*.md`, and the style guide is updated from it.
+
+---
+
+# Map Animation Studio
+
+`map-animation-studio/` is a Remotion project for map and travel animations: flight paths, road trips on real highways, 3D terrain flyovers, country highlights, flags inside countries, a keyframe timeline composer and more. See [map-animation-studio/README.md](map-animation-studio/README.md).
+
+```
+cd map-animation-studio && npm install && npm run studio
+```
