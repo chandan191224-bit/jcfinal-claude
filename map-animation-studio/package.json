@@ -45,14 +45,18 @@
     "@types/topojson-specification": "^1.0.5",
     "@types/web": "0.0.166",
     "@vitejs/plugin-react": "^5.2.0",
+    "electron": "^44.7.0",
+    "electron-builder": "^26.17.0",
     "eslint": "10.12.0",
     "prettier": "3.8.1",
+    "resedit": "^2.0.3",
     "topojson-server": "^3.0.1",
     "topojson-simplify": "^3.0.3",
     "typescript": "5.9.3",
     "vite": "^7.3.7"
   },
   "scripts": {
+    "build-desktop": "node scripts/build-desktop.mjs",
     "build-html": "node scripts/build-html.mjs",
     "app": "vite",
     "dev": "remotion studio",

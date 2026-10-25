@@ -39,7 +39,7 @@ another `sample-script-*.md`, and the style guide is updated from it.
 
 `map-animation-studio/` makes map and travel animations: flight paths, road trips on real highways, 3D terrain flyovers, country highlights, flags inside countries, and a keyframe timeline. See [map-animation-studio/README.md](map-animation-studio/README.md).
 
-**To use it, double-click [`map-animation-studio/Map Animation Studio.html`](map-animation-studio/Map%20Animation%20Studio.html).** It's one file that opens in Chrome or Edge with no install, and exports MP4.
+**To use it, install the desktop app** with `Map-Animation-Studio-Setup-<version>.exe` (Windows 10/11). Build it with `npm run build-desktop`. There's also a single-file browser version, [`map-animation-studio/Map Animation Studio.html`](map-animation-studio/Map%20Animation%20Studio.html).
 
 For developers, the Remotion Studio version:
 

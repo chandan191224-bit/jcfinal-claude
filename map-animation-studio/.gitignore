@@ -12,3 +12,6 @@ app-dist
 .html-build
 public/media/*
 !public/media/.gitkeep
+
+# Desktop app build
+release

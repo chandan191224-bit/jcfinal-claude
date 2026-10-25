@@ -11,6 +11,9 @@
     <script>
       // A typo in a place name skips that element in the preview and shows a warning, instead of stopping it.
       window.__MAP_STUDIO_SOFT_ERRORS__ = true;
+      window.__errors = [];
+      addEventListener("error", (e) => window.__errors.push(String(e.message)));
+      addEventListener("unhandledrejection", (e) => window.__errors.push(String(e.reason && e.reason.message ? e.reason.message : e.reason)));
     </script>
   </head>
   <body>

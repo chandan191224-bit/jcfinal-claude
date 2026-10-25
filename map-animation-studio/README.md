@@ -16,33 +16,33 @@ All the data is free and accurate, and most of it ships in this folder:
 | Flags (250+) | `flag-icons` (MIT) | Waving animation |
 | Sound effects | Synthesised by `scripts/make-sfx.mjs` | Your own, royalty-free |
 
-## Map Animation Studio app: one file, no install
+## Map Animation Studio: desktop software
 
-**`Map Animation Studio.html`** is the whole studio in one file. Double-click it and it opens in Chrome or Edge, like Paper Studio Pro. There is no terminal, no install and no server. All the map data (borders, states, cities, roads, rivers, satellite imagery, flags, sounds) is inside the file, about 20 MB, so it works offline. Fonts load from Google Fonts when you are online.
+**Install:** run **`Map-Animation-Studio-Setup-<version>.exe`** and click through the installer. You can install it for just you or for everyone, and choose the folder. It adds a **Map Animation Studio** icon to the desktop and the Start Menu, and you uninstall it from *Settings → Apps* like any other program. You can pass the same installer to anyone with Windows 10 or 11 (64-bit). Windows SmartScreen may say "Windows protected your PC" because the installer isn't code-signed: click **More info → Run anyway**.
+
+Everything is inside the app: the editor, the 30 animations and all the map data (borders, states, 7,300+ cities, roads, rivers, satellite imagery, flags, sounds). No browser, terminal or internet is needed, except for Google Fonts and new 3D terrain areas.
+
+**Export** renders every frame and encodes **H.264 MP4** (about 40 Mbit/s for 1080p, 120 Mbit/s for 4K, 320 kbps AAC audio), then asks where to save it (the Videos folder by default). On a computer whose video encoder can't make H.264, it renders a near-lossless master and converts it with the built-in ffmpeg (x264 CRF 14, slow preset). Projects and your media are stored inside the app and reopen automatically.
+
+**Building the installer** (developers): `npm run build-desktop` writes `release/Map-Animation-Studio-Setup-<version>.exe`. On Linux or macOS this needs Wine (`apt install wine64 wine32:i386`). `npm run build-desktop -- --dir` makes an unpacked app without the installer. `npm run app` runs the editor from source in a browser with live reload. `npm run build-html` makes the single-file browser version (`Map Animation Studio.html`).
 
 The screen is laid out like Cutroom:
 
 | Area | What it does |
 |---|---|
-| **Left: Add / Templates / Media** | Add any layer at the playhead: highlight area, flag/photo/video inside an area, route, pin, radar, callout, arrow, map label, text, location card, image, video, waving flag, counter, GPS HUD, sound. **Templates** adds any of the 30 ready-made animations as a *scene* on the timeline, or starts a new project from one. **Media** adds your photos, videos and audio. They are kept inside the browser (IndexedDB) and are there next time. |
+| **Left: Add / Templates / Media** | Add any layer at the playhead: highlight area, flag/photo/video inside an area, route, pin, radar, callout, arrow, map label, text, location card, image, video, waving flag, counter, GPS HUD, sound. **Templates** adds any of the 30 ready-made animations as a *scene* on the timeline, or starts a new project from one. **Media** adds your photos, videos and audio. They are kept inside the app and are there next time. |
 | **Centre: preview** | Live preview. Drag the selected layer to move it, scroll to scale it, Shift+scroll to rotate it. With **Rec** on, those moves become keyframes at the playhead. Drop files on the preview to add them. |
 | **Right: inspector** | **Layer**: every setting, with place search (countries, states, 7,300+ cities, landmarks). **Animate**: keyframes (opacity, scale, x, y, rotate, easing) and presets. **Camera**: camera keyframes (place, zoom, bearing, 3D pitch, fly/smooth/cut). **Project**: frame size, length, map look, borders, map details, sun, sound. |
 | **Bottom: timeline** | One track per layer, plus a camera track. Drag bars to move them, drag their edges to trim. Drag the diamonds to retime keyframes, and double-click the camera row to add a camera key. Snapping is on (hold Alt to turn it off), and Ctrl+wheel zooms. Drag the end marker to change the length. |
 
-**Export** makes the video inside the browser, frame by frame, so nothing is dropped even if the preview stutters. It uses the computer's video encoder (WebCodecs) and saves the file to your Downloads folder:
-- **Highest quality MP4**: H.264 at about 40 Mbit/s for 1080p and 120 Mbit/s for 4K, with 320 kbps AAC audio.
-- **Smaller MP4**: about 16 Mbit/s for 1080p.
-- **WebM (VP9)**: for browsers that can't make MP4.
+**Export options:** Highest quality MP4, Smaller MP4 (about 16 Mbit/s for 1080p) or WebM. Every frame size works: 1080p, 4K, Shorts 9:16, 1:1 and 4:5.
 
-Every frame size works: 1080p, 4K, Shorts 9:16, 1:1 and 4:5. Keep the tab in front while it exports.
-
-**Saving:** **Ctrl+S** saves the project in the browser (*Project → Open* lists your projects), and after that it autosaves. *Project → Download project file* gives you a `.json` copy for another computer. Undo/redo goes back up to 150 steps.
+**Saving:** **Ctrl+S** saves the project (*Project → Open* lists your projects), and after that it autosaves. *Project → Download project file* gives you a `.json` copy for another computer. Undo/redo goes back up to 150 steps.
 
 **Shortcuts:** Space play · ←/→ frame · K keyframe · R record · S split · Del delete · Ctrl+D duplicate · Ctrl+Z / Ctrl+Shift+Z undo/redo · Ctrl+S save · Ctrl+O open.
 
 A misspelt place name doesn't stop the preview: that element is skipped and a ⚠ warning shows on the preview.
 
-**Rebuilding the file** (developers): `npm run build-html` writes a new `Map Animation Studio.html`. `npm run app` runs the editor from source with live reload.
 
 ## Remotion Studio (optional, for developers)
 
