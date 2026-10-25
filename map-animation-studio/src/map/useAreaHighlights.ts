@@ -35,11 +35,13 @@ export const highlightDefaults = (h: Partial<HighlightSpec> & { target: string }
   ...h,
 });
 
-type Shape = { feature: Feature<Geometry> | FeatureCollection; name: string };
+export type Shape = { feature: Feature<Geometry> | FeatureCollection; name: string };
 
 const norm = (s: string | null | undefined) => (s ?? "").trim().toLowerCase();
 
-async function resolveShape(spec: HighlightSpec, world: World): Promise<Shape> {
+type ShapeQuery = { target: string; level: HighlightSpec["level"]; radiusKm: number };
+
+async function resolveShape(spec: ShapeQuery, world: World): Promise<Shape> {
   const t = spec.target.trim();
   if (t.startsWith("file:")) {
     const file = t.slice(5).trim();
@@ -95,8 +97,8 @@ export function useAreaHighlights(specs: HighlightSpec[], frame: number, fps: nu
   }, [shapes, specs, frame, fps, theme]);
 }
 
-/** All geographic shapes of the specs (for camera framing). */
-export function useAreaShapes(specs: HighlightSpec[], borders: BorderView = "india") {
+/** Geographic shapes for any list of targets (highlights, region media, framing). */
+export function useAreaShapes(specs: ShapeQuery[], borders: BorderView = "india") {
   const world = useWorld(borders);
   const key = world ? `areas:${borders}:${JSON.stringify(specs.map((s) => [s.target, s.level, s.radiusKm]))}` : null;
   return useAsset(key, () => loadOnce(key!, () => Promise.all(specs.map((s) => resolveShape(s, world!)))));

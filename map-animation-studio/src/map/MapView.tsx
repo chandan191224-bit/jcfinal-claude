@@ -81,15 +81,19 @@ export const MapView: React.FC<Props> = ({
   const assets = useMapAssets(theme, layers, raster, sun);
   const rasterKind = raster ?? theme.raster;
 
-  // Tilted cameras render a taller plane that leans back in 3D; the camera centre stays put.
+  // Tilted cameras render a larger plane (taller, wider, and a little below the frame) that leans
+  // back in 3D around the camera centre, so no edge of the map ever shows.
   const tilt = Math.max(0, Math.min(70, camera.pitch));
-  const planeH = tilt > 0 ? Math.round(height * (1 + tilt / 30)) : height;
-  const offsetY = planeH - height;
+  const padX = tilt > 0 ? Math.round(width * (tilt / 55)) : 0;
+  const padB = tilt > 0 ? Math.round(height * 0.3) : 0;
+  const planeW = width + padX * 2;
+  const planeH = tilt > 0 ? Math.round(height * (1 + tilt / 25)) + padB : height;
+  const offsetY = planeH - height - padB;
   const projection = useMemo(() => {
-    const p = makeProjection(kind, camera, width, planeH);
+    const p = makeProjection(kind, camera, width, height);
     const [tx, ty] = p.translate();
-    return p.translate([tx, ty + (planeH - height) / 2]);
-  }, [kind, camera, width, height, planeH]);
+    return p.translate([tx + padX, ty + offsetY]);
+  }, [kind, camera, width, height, padX, offsetY]);
 
   const ref = useRef<HTMLCanvasElement>(null);
   const ppd = pixelsPerDegree(kind, camera, width, height);
@@ -98,8 +102,8 @@ export const MapView: React.FC<Props> = ({
     const canvas = ref.current;
     if (!canvas || !world) return;
     paintMap({
-      ctx: canvas.getContext("2d")!,
-      width,
+      ctx: canvas.getContext("2d", { willReadFrequently: true })!,
+      width: planeW,
       height: planeH,
       projection,
       kind,
@@ -123,7 +127,7 @@ export const MapView: React.FC<Props> = ({
     return {
       projection,
       path: (o) => svgPath(o) ?? "",
-      width,
+      width: planeW,
       height: planeH,
       offsetY,
       camera,
@@ -138,23 +142,23 @@ export const MapView: React.FC<Props> = ({
         return !!back && Math.abs(back[0] - p[0]) < 1e-3 && Math.abs(back[1] - p[1]) < 1e-3;
       },
     };
-  }, [projection, width, planeH, offsetY, camera, kind, theme, world]);
+  }, [projection, planeW, planeH, offsetY, camera, kind, theme, world]);
 
-  const originY = planeH - height / 2;
+  const originY = offsetY + height / 2;
   return (
     <AbsoluteFill style={{ overflow: "hidden", width, height, backgroundColor: kind === "globe" ? theme.space : theme.oceanEdge }}>
       <div
         style={{
           position: "absolute",
-          left: 0,
+          left: -padX,
           top: -offsetY,
-          width,
+          width: planeW,
           height: planeH,
-          transformOrigin: `${width / 2}px ${originY}px`,
+          transformOrigin: `${padX + width / 2}px ${originY}px`,
           transform: tilt > 0 ? `perspective(${height * 1.4}px) rotateX(${tilt}deg)` : undefined,
         }}
       >
-        <canvas ref={ref} width={width} height={planeH} style={{ position: "absolute", inset: 0 }} />
+        <canvas ref={ref} width={planeW} height={planeH} style={{ position: "absolute", inset: 0 }} />
         <Ctx.Provider value={ctxValue}>{world ? children : null}</Ctx.Provider>
       </div>
     </AbsoluteFill>

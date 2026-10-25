@@ -122,9 +122,24 @@ function useTimeline(trip: Trip | null, p: TravelProps, fps: number, total: numb
   }, [trip, p.introSec, p.outroSec, p.stopPauseSec, p.easing, fps, total]);
 }
 
-export const TravelScene: React.FC<TravelProps & { children?: React.ReactNode; overlay?: (info: { progress: number; head: LonLat }) => React.ReactNode }> = (p) => {
+export type TravelInfo = { progress: number; head: LonLat; trip: Trip; arrivalFrames: number[]; travelEnd: number };
+
+export const TravelScene: React.FC<
+  TravelProps & {
+    children?: React.ReactNode;
+    overlay?: (info: TravelInfo) => React.ReactNode;
+    /** Rendered inside the map's SVG overlay (shares the projection). */
+    mapChildren?: (info: TravelInfo) => React.ReactNode;
+    /** Render size when used as an inset (mini map); hides counters and cards. */
+    size?: { width: number; height: number };
+  }
+> = (p) => {
   const frame = useCurrentFrame();
-  const { fps, durationInFrames, width, height } = useVideoConfig();
+  const video = useVideoConfig();
+  const { fps, durationInFrames } = video;
+  const width = p.size?.width ?? video.width;
+  const height = p.size?.height ?? video.height;
+  const inset = !!p.size;
   const theme = THEMES[p.theme];
   const trip = useTrip(p.stops, p.mode, p.trackFile ?? "");
   const tl = useTimeline(trip, p, fps, durationInFrames);
@@ -193,10 +208,12 @@ export const TravelScene: React.FC<TravelProps & { children?: React.ReactNode; o
   const clock = `${String(Math.floor(minutes / 60) % 24).padStart(2, "0")}:${String(Math.floor(minutes % 60)).padStart(2, "0")}`;
   const kmPerPixel = (6371 / (baseScale(kind, width, height) * Math.pow(2, camera.zoom))) / (kind === "mercator" ? 1 / Math.cos((camera.lat * Math.PI) / 180) : 1);
   const last = trip.stops[trip.stops.length - 1];
+  const info: TravelInfo = { progress: prog, head, trip, arrivalFrames: tl.arrivalFrames, travelEnd: tl.travelEnd };
 
   return (
     <AbsoluteFill>
       <MapView
+        size={p.size}
         kind={kind}
         camera={camera}
         theme={theme}
@@ -225,13 +242,14 @@ export const TravelScene: React.FC<TravelProps & { children?: React.ReactNode; o
               pulse={i === trip.stops.length - 1}
             />
           ))}
+          {p.mapChildren ? p.mapChildren(info) : null}
         </MapOverlay>
       </MapView>
-      <Finish theme={theme} />
-      {p.showDistance ? <Counter value={kmDone} label={p.mode === "flight" ? "Flight distance" : "Distance"} theme={theme} format={formatKm} /> : null}
-      {p.showCompass ? <CompassRose bearing={camera.bearing} theme={theme} /> : null}
-      {p.showScale && kmPerPixel > 0 ? <ScaleBar kmPerPixel={kmPerPixel} theme={theme} /> : null}
-      {p.showHud ? (
+      {inset ? null : <Finish theme={theme} />}
+      {p.showDistance && !inset ? <Counter value={kmDone} label={p.mode === "flight" ? "Flight distance" : "Distance"} theme={theme} format={formatKm} /> : null}
+      {p.showCompass && !inset ? <CompassRose bearing={camera.bearing} theme={theme} /> : null}
+      {p.showScale && !inset && kmPerPixel > 0 ? <ScaleBar kmPerPixel={kmPerPixel} theme={theme} /> : null}
+      {p.showHud && !inset ? (
         <Hud
           style={p.mode === "flight" ? "flight" : "drone"}
           data={{
@@ -247,7 +265,7 @@ export const TravelScene: React.FC<TravelProps & { children?: React.ReactNode; o
         />
       ) : null}
       {p.title ? <TitleCard title={p.title} subtitle={p.subtitle} theme={theme} duration={Math.max(60, tl.intro + 40)} /> : null}
-      {p.arrivalCard ? (
+      {p.arrivalCard && !inset ? (
         <LocationCard
           name={last.name}
           subtitle={placeSubtitle(last)}
@@ -261,8 +279,8 @@ export const TravelScene: React.FC<TravelProps & { children?: React.ReactNode; o
       ) : null}
       {p.letterbox ? <Letterbox amount={1} /> : null}
       {p.children}
-      {p.overlay ? p.overlay({ progress: prog, head }) : null}
-      <LightLeak start={tl.travelEnd - 10} duration={36} />
+      {p.overlay ? p.overlay(info) : null}
+      {inset ? null : <LightLeak start={tl.travelEnd - 10} duration={36} />}
       <Sfx name="whoosh" at={tl.intro - 8} volume={p.sfxVolume} enabled={p.sfx} />
       <Sfx name={p.mode === "flight" ? "plane-flyby" : "engine"} at={tl.intro + (tl.travelEnd - tl.intro) / 2 - 60} volume={p.sfxVolume * 0.8} enabled={p.sfx} />
       {stopsReached.slice(1).map((f, i) => (

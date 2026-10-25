@@ -37,7 +37,7 @@ type Props = {
   sunAzimuth?: number;
   sunElevation?: number;
   fog?: number;
-  trail?: { coords: LonLat[]; progress: number; color: string; widthKm: number } | null;
+  trail?: { coords: LonLat[]; progress: number; color: string; widthKm: number; markerKm?: number } | null;
   markers?: TerrainMarker[];
   frame: number;
   children?: React.ReactNode;
@@ -99,9 +99,13 @@ function useTerrainGeometry(dem: Dem, style: TerrainStyle, exaggeration: number,
         const t = clamp((e - lo) / Math.max(1, snow - lo));
         if (t < 0.45) c.copy(cLow).lerp(cMid, t / 0.45);
         else c.copy(cMid).lerp(cHigh, (t - 0.45) / 0.55);
-        if (ny < 0.72) c.lerp(cRock, clamp((0.72 - ny) / 0.25));
-        const snowAmt = clamp((e - snow) / 400) * clamp((ny - 0.55) / 0.2);
+        if (ny < 0.8) c.lerp(cRock, clamp((0.8 - ny) / 0.25));
+        // Snow settles on gentle slopes above the snowline; steep faces stay bare rock.
+        const snowAmt = clamp((e - snow) / 500) * clamp((ny - 0.62) / 0.18);
         if (snowAmt > 0) c.lerp(cSnow, snowAmt);
+        // Small per-vertex variation breaks up flat colour.
+        const v = Math.sin(k * 12.9898) * 43758.5453;
+        c.multiplyScalar(0.94 + 0.12 * (v - Math.floor(v)));
         if (style === "paper") {
           // Contour bands every 200 m.
           const band = Math.abs(((e % 200) + 200) % 200 - 100) < 8 ? 0.82 : 1;
@@ -189,7 +193,7 @@ export const TerrainView: React.FC<Props> = ({
   dem,
   style,
   exaggeration,
-  segments = 256,
+  segments = 384,
   snowline = 0,
   camera,
   sunAzimuth = 135,
@@ -222,6 +226,7 @@ export const TerrainView: React.FC<Props> = ({
       const s = projectToScreen(camera, width, height, v);
       const a = clamp((frame - (m.appear ?? 0)) / 15);
       if (!s.visible || s.x < -200 || s.x > width + 200) return null;
+      if (!lineOfSight(dem, exaggeration, camera.position, toWorld(dem, m.at, exaggeration, 30))) return null;
       const unit = height / 1080;
       return (
         <div key={i} style={{ position: "absolute", left: s.x, top: s.y, transform: "translate(-50%, -100%)", opacity: a, textAlign: "center", pointerEvents: "none" }}>
@@ -280,13 +285,13 @@ export const TerrainView: React.FC<Props> = ({
             </mesh>
             {head ? (
               <group position={head.toArray()}>
-                <mesh position={[0, 0.05 * exaggeration, 0]}>
-                  <sphereGeometry args={[Math.max(0.04, r * 0.012), 24, 24]} />
+                <mesh position={[0, (trail.markerKm ?? r * 0.012) * 1.2, 0]}>
+                  <sphereGeometry args={[trail.markerKm ?? r * 0.012, 24, 24]} />
                   <meshBasicMaterial color={trail.color} />
                 </mesh>
-                <mesh position={[0, r * 0.06, 0]}>
-                  <cylinderGeometry args={[r * 0.0015, r * 0.0015, r * 0.12, 8]} />
-                  <meshBasicMaterial color={trail.color} transparent opacity={0.6} />
+                <mesh position={[0, (trail.markerKm ?? r * 0.012) * 10, 0]}>
+                  <cylinderGeometry args={[(trail.markerKm ?? r * 0.012) * 0.12, (trail.markerKm ?? r * 0.012) * 0.12, (trail.markerKm ?? r * 0.012) * 20, 8]} />
+                  <meshBasicMaterial color={trail.color} transparent opacity={0.5} />
                 </mesh>
               </group>
             ) : null}
@@ -344,8 +349,33 @@ export function terrainCamera(
     pos = tgt.clone().add(back.multiplyScalar(d * (1.6 - 0.9 * e)));
     pos.y = tgt.y + opts.heightKm * (1.3 - 0.6 * e);
   }
-  // Terrain clearance.
+  // Terrain clearance under the camera.
   const ground = terrainHeightAt(dem, pos.x, pos.z, exaggeration);
   pos.y = Math.max(pos.y, ground + 0.25 * exaggeration);
+  // Keep a clear line of sight to the target: raise the camera over any ridge in between.
+  if (move !== "flyover") {
+    const goal = tgt.clone().setY(tgt.y + 0.05);
+    for (let iter = 0; iter < 4; iter++) {
+      let need = 0;
+      for (let k = 1; k < 48; k++) {
+        const f = k / 48;
+        const q = pos.clone().lerp(goal, f);
+        const deficit = terrainHeightAt(dem, q.x, q.z, exaggeration) + 0.08 * exaggeration - q.y;
+        if (deficit > 0) need = Math.max(need, deficit / (1 - f));
+      }
+      if (need <= 0) break;
+      pos.y += need;
+    }
+  }
   return { position: pos.toArray() as [number, number, number], target: look.toArray() as [number, number, number], fov: opts.fov ?? 50 };
+}
+
+/** True if nothing on the terrain blocks the straight line from the camera to the point. */
+export function lineOfSight(dem: Dem, exaggeration: number, from: [number, number, number], to: THREE.Vector3) {
+  const a = new THREE.Vector3(...from);
+  for (let k = 1; k < 40; k++) {
+    const q = a.clone().lerp(to, k / 40);
+    if (terrainHeightAt(dem, q.x, q.z, exaggeration) > q.y + 0.02) return false;
+  }
+  return true;
 }

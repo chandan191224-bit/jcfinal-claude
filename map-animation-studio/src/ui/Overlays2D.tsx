@@ -115,7 +115,9 @@ export const LocationCard: React.FC<{
   cardStyle?: LocationCardStyle;
   position?: "bottom-left" | "center" | "top-left" | "bottom-right";
   accent?: string;
-}> = ({ name, subtitle, lat, lon, start = 0, duration = 150, cardStyle = "documentary", position = "bottom-left", accent = "#ffb347" }) => {
+  /** Extra vertical inset as a fraction of the frame height (e.g. to clear letterbox bars). */
+  inset?: number;
+}> = ({ name, subtitle, lat, lon, start = 0, duration = 150, cardStyle = "documentary", position = "bottom-left", accent = "#ffb347", inset = 0 }) => {
   const frame = useCurrentFrame() - start;
   const { width, height } = useVideoConfig();
   if (frame < 0 || frame > duration) return null;
@@ -132,10 +134,10 @@ export const LocationCard: React.FC<{
     position === "center"
       ? { left: 0, right: 0, top: height * 0.38, textAlign: "center", alignItems: "center" }
       : position === "top-left"
-        ? { left: 110 * unit, top: 110 * unit }
+        ? { left: 110 * unit, top: 110 * unit + inset * height }
         : position === "bottom-right"
-          ? { right: 110 * unit, bottom: 130 * unit, alignItems: "flex-end", textAlign: "right" }
-          : { left: 110 * unit, bottom: 130 * unit };
+          ? { right: 110 * unit, bottom: 130 * unit + inset * height, alignItems: "flex-end", textAlign: "right" }
+          : { left: 110 * unit, bottom: 130 * unit + inset * height };
   const color = cardStyle === "minimal" || cardStyle === "vintage" ? "#1e1b16" : "#ffffff";
   const panel =
     cardStyle === "vlog"

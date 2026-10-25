@@ -10,11 +10,13 @@ export type Place = {
   country: string;
   a3: string;
   pop: number;
-  kind: "city" | "landmark" | "coords";
+  kind: "city" | "landmark" | "coords" | "country";
   /** 2 = national capital, 1 = state/province capital. */
   capital?: number;
   /** Landmark model used by the 3D pop-up scenes. */
   model?: LandmarkModel;
+  /** Official summit/ground elevation in metres when known. */
+  elevation?: number;
 };
 
 export type LandmarkModel =
@@ -31,6 +33,32 @@ export type LandmarkModel =
   | "bridge"
   | "wall";
 
+// Surveyed summits (WGS84) with official heights in metres.
+const PEAKS: [string, number, number, string, string, number][] = [
+  ["Mount Everest", 27.9881, 86.925, "Khumbu", "Nepal", 8849],
+  ["K2", 35.8825, 76.5133, "Gilgit-Baltistan", "Pakistan", 8611],
+  ["Kangchenjunga", 27.7025, 88.1475, "Sikkim", "India", 8586],
+  ["Lhotse", 27.9617, 86.9333, "Khumbu", "Nepal", 8516],
+  ["Makalu", 27.8897, 87.0889, "Koshi", "Nepal", 8485],
+  ["Cho Oyu", 28.0942, 86.6608, "Khumbu", "Nepal", 8188],
+  ["Dhaulagiri", 28.6983, 83.4875, "Gandaki", "Nepal", 8167],
+  ["Manaslu", 28.5497, 84.5597, "Gandaki", "Nepal", 8163],
+  ["Nanga Parbat", 35.2375, 74.5892, "Gilgit-Baltistan", "Pakistan", 8126],
+  ["Annapurna", 28.5961, 83.8203, "Gandaki", "Nepal", 8091],
+  ["Nuptse", 27.9672, 86.8864, "Khumbu", "Nepal", 7861],
+  ["Nanda Devi", 30.3757, 79.9707, "Uttarakhand", "India", 7816],
+  ["Kamet", 30.92, 79.5917, "Uttarakhand", "India", 7756],
+  ["Ama Dablam", 27.8617, 86.8614, "Khumbu", "Nepal", 6812],
+  ["Mount Kailash", 31.0675, 81.3119, "Tibet", "China", 6638],
+  ["Aconcagua", -32.6532, -70.0109, "Mendoza", "Argentina", 6961],
+  ["Denali", 63.0692, -151.007, "Alaska", "United States of America", 6190],
+  ["Mount Kilimanjaro", -3.0674, 37.3556, "Kilimanjaro", "Tanzania", 5895],
+  ["Mount Elbrus", 43.3499, 42.4453, "Kabardino-Balkaria", "Russia", 5642],
+  ["Mont Blanc", 45.8326, 6.8652, "Haute-Savoie", "France", 4806],
+  ["Matterhorn", 45.9763, 7.6586, "Zermatt", "Switzerland", 4478],
+  ["Mount Fuji", 35.3606, 138.7274, "Shizuoka", "Japan", 3776],
+];
+
 // Surveyed coordinates of well-known landmarks (WGS84).
 const LANDMARKS: [string, number, number, string, string, LandmarkModel][] = [
   ["Eiffel Tower", 48.8584, 2.2945, "Paris", "France", "tower"],
@@ -42,14 +70,6 @@ const LANDMARKS: [string, number, number, string, string, LandmarkModel][] = [
   ["India Gate", 28.6129, 77.2295, "New Delhi", "India", "arch"],
   ["Gateway of India", 18.922, 72.8347, "Mumbai", "India", "arch"],
   ["Great Pyramid of Giza", 29.9792, 31.1342, "Giza", "Egypt", "pyramid"],
-  ["Mount Everest", 27.9881, 86.925, "Khumbu", "Nepal", "mountain"],
-  ["K2", 35.8825, 76.5133, "Gilgit-Baltistan", "Pakistan", "mountain"],
-  ["Kangchenjunga", 27.7025, 88.1475, "Sikkim", "India", "mountain"],
-  ["Nanda Devi", 30.3757, 79.9707, "Uttarakhand", "India", "mountain"],
-  ["Mount Kailash", 31.0675, 81.3119, "Tibet", "China", "mountain"],
-  ["Matterhorn", 45.9763, 7.6586, "Zermatt", "Switzerland", "mountain"],
-  ["Mount Fuji", 35.3606, 138.7274, "Shizuoka", "Japan", "mountain"],
-  ["Mount Kilimanjaro", -3.0674, 37.3556, "Kilimanjaro", "Tanzania", "mountain"],
   ["Grand Canyon", 36.1069, -112.1129, "Arizona", "United States of America", "mountain"],
   ["Sydney Opera House", -33.8568, 151.2153, "Sydney", "Australia", "dome"],
   ["Christ the Redeemer", -22.9519, -43.2105, "Rio de Janeiro", "Brazil", "statue"],
@@ -191,6 +211,9 @@ export const loadGazetteer = () =>
       kind: "landmark" as const,
       model,
     }));
+    for (const [name, lat, lon, region, country, elevation] of PEAKS) {
+      landmarks.push({ name, lat, lon, region, country, a3: "", pop: 0, kind: "landmark", model: "mountain", elevation });
+    }
     const byName = new Map<string, Place[]>();
     const add = (k: string, p: Place) => {
       const key = norm(k);
@@ -208,11 +231,31 @@ export const loadGazetteer = () =>
       cities.push(p);
       add(name, p);
     }
-    const all = [...landmarks, ...cities];
+    // Countries resolve to their label point (a good visual centre), after cities and landmarks.
+    const ctopo = await fetchJson<{ objects: { countries: { geometries: { properties: { name: string; en: string; long: string; a3: string; lx: number; ly: number; pop: number } }[] } } }>(
+      "data/countries-ind-lo.json",
+    );
+    const countries: Place[] = ctopo.objects.countries.geometries.map(({ properties: c }) => ({
+      name: c.en && c.en.length < c.name.length ? c.en : c.name,
+      lon: c.lx,
+      lat: c.ly,
+      region: "",
+      country: c.name,
+      a3: c.a3,
+      pop: c.pop,
+      kind: "country" as const,
+    }));
+    const all = [...landmarks, ...cities, ...countries];
 
+    const countryBy = new Map<string, Place>();
+    ctopo.objects.countries.geometries.forEach(({ properties: c }, i) => {
+      for (const k of [c.name, c.en, c.long, c.a3]) if (k && !countryBy.has(norm(k))) countryBy.set(norm(k), countries[i]);
+    });
     const find = (q: string): Place | null => {
-      const coords = parseCoords(q);
-      if (coords) return { name: q, lon: coords[0], lat: coords[1], region: "", country: "", a3: "", pop: 0, kind: "coords" };
+      // "Base Camp (28.0026, 86.8528)" names a coordinate.
+      const named = q.match(/^(.+?)\s*\(([^()]+)\)\s*$/);
+      const coords = parseCoords(named ? named[2] : q);
+      if (coords) return { name: named ? named[1].trim() : q, lon: coords[0], lat: coords[1], region: "", country: "", a3: "", pop: 0, kind: "coords" };
       const [rawName, ...qualifiers] = q.split(",").map(norm);
       const name = ALIASES[rawName] ?? rawName;
       const qual = qualifiers.join(" ");
@@ -220,6 +263,8 @@ export const loadGazetteer = () =>
         !qual || norm(p.country).includes(qual) || norm(p.region).includes(qual) || norm(p.a3) === qual;
       const exact = (byName.get(name) ?? []).filter(matches);
       if (exact.length) return exact.sort((a, b) => b.pop - a.pop)[0];
+      const country = countryBy.get(name);
+      if (country && !qual) return country;
       const loose = all.filter((p) => norm(p.name).startsWith(name) && matches(p));
       return loose.length ? loose.sort((a, b) => b.pop - a.pop)[0] : null;
     };

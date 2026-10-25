@@ -40,6 +40,8 @@ export type ResolvedHighlight = {
   label?: string;
   sublabel?: string;
   labelScale?: number;
+  /** Extra opacity multiplier (keyframes). */
+  alpha?: number;
 };
 
 const rgba = (hex: string, a: number) => {
@@ -104,7 +106,7 @@ export function drawHighlights(
     if (h.t < 0) continue;
     const ain = clamp(h.t / Math.max(1, h.inFrames));
     const aout = Number.isFinite(h.remaining) ? clamp(h.remaining / 12) : 1;
-    const a = easeOutCubic(ain) * aout;
+    const a = easeOutCubic(ain) * aout * (h.alpha ?? 1);
     if (a <= 0) continue;
     const f = h.feature;
     const c = h.color;

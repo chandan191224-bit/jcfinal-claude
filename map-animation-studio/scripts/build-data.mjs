@@ -68,6 +68,7 @@ function countries(key, prefix) {
         long: p.NAME_LONG,
         en: p.NAME_EN,
         iso,
+        iso2: (p.ISO_A2_EH && p.ISO_A2_EH !== "-99" ? p.ISO_A2_EH : p.ISO_A2 !== "-99" ? p.ISO_A2 : "").toLowerCase(),
         a3: p.ADM0_A3,
         continent: p.CONTINENT,
         lx: round(p.LABEL_X, 3),

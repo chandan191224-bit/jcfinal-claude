@@ -41,6 +41,7 @@ export type RouteGeometry = {
 export function routeGeometry(m: MapCtx, coords: LonLat[], lift = 0, densifyKm = 20): RouteGeometry {
   const dense = densify(coords, densifyKm);
   const measure = new GeoPath(dense);
+  if (dense.length < 2) return { pts: [], measure };
   const total = measure.lengthKm || 1;
   const pts: ScreenPt[] = [];
   if (m.kind === "globe") {
@@ -74,6 +75,7 @@ export function routeGeometry(m: MapCtx, coords: LonLat[], lift = 0, densifyKm =
 /** SVG path data for the part of the route between fractions t0 and t1 (true distance). */
 export function routePathD(g: RouteGeometry, t0: number, t1: number, maxJump: number) {
   const { pts } = g;
+  if (pts.length < 2) return "";
   let d = "";
   let pen = false;
   const at = (t: number) => {
@@ -103,6 +105,7 @@ export function routePathD(g: RouteGeometry, t0: number, t1: number, maxJump: nu
 /** Position and screen heading (degrees, 0 = pointing right) at fraction t. */
 export function routeHead(g: RouteGeometry, t: number) {
   const { pts } = g;
+  if (pts.length < 2) return { x: 0, y: 0, angle: 0, on: false };
   const find = (tt: number) => {
     let i = 1;
     while (i < pts.length - 1 && pts[i].f < tt) i++;

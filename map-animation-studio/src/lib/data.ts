@@ -100,7 +100,7 @@ export function useAsset<T>(key: string | null, loader: () => Promise<T>, option
 
 /* ---------------- world geometry ---------------- */
 
-export type CountryProps = { name: string; long: string; en: string; iso: string; a3: string; continent: string; lx: number; ly: number; pop: number };
+export type CountryProps = { name: string; long: string; en: string; iso: string; iso2: string; a3: string; continent: string; lx: number; ly: number; pop: number };
 export type CountryFeature = Feature<Geometry, CountryProps>;
 export type Lod = "lo" | "mid" | "hi";
 export type WorldLayer = {
