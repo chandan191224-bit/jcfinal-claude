@@ -2,7 +2,7 @@
 
 Target: 20–30 min video. Narration target ~3,600 words (the Hindi neural voice reads slower than
 a human narrator, ~140–150 words/min, so this lands at about 24–26 minutes).
-Visual style: 2D hand-painted anime (Ghibli-inspired).
+Visual style: photorealistic cinematic (historical epic film look).
 
 ## Fact sheet
 

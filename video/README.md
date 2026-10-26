@@ -1,6 +1,6 @@
 # Video: दिल्ली का इतिहास
 
-A ~26 minute Hindi documentary for the favorite Show: AI voiceover, 449 Ghibli-style images
+A ~26 minute Hindi documentary for the favorite Show: AI voiceover, 449 realistic cinematic images
 (a new one every ~3.5 s), edited in Remotion.
 
 | What | Where |

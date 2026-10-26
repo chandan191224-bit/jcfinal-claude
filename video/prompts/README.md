@@ -12,7 +12,7 @@
 
 ## How to do it
 
-1. Open a batch, copy one prompt (each already has the Ghibli style), paste it into your image app
+1. Open a batch, copy one prompt (each already has the realistic style), paste it into your image app
    (Google Flow / Gemini / Higgsfield / any) and pick **16:9 landscape**.
 2. Save the image with its number as the name: `001.png`, `002.png` … (jpg/webp also fine).
    Can't rename on the phone? Generate strictly in order and tell me; I'll sort by time.

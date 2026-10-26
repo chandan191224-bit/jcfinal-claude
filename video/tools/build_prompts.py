@@ -39,7 +39,7 @@ for b in range(BATCHES):
     lo, hi = b * per, min((b + 1) * per, len(SHOTS))
     lines = [
         f"# Batch {b + 1} of {BATCHES}: images {lo + 1:03d} to {hi:03d}", "",
-        "दिल्ली का इतिहास · 2D Ghibli-style images · **16:9 landscape**", "",
+        "दिल्ली का इतिहास · realistic cinematic images · **16:9 landscape**", "",
         f"Save each image with its number as the file name ({lo + 1:03d}.png … {hi:03d}.png).",
         "Every prompt already includes the style. Copy one block, paste, generate, save.", "",
     ]
@@ -58,7 +58,7 @@ for b in range(BATCHES):
     readme.append(f"| [batch-{b + 1}.md](batch-{b + 1}.md) | {lo + 1:03d}–{hi:03d} | "
                   f"{mmss(shots[lo]['start'])}–{mmss(shots[hi - 1]['start'] + shots[hi - 1]['duration'])} |")
 readme += ["", "## How to do it", "",
-    "1. Open a batch, copy one prompt (each already has the Ghibli style), paste it into your image app",
+    "1. Open a batch, copy one prompt (each already has the realistic style), paste it into your image app",
     "   (Google Flow / Gemini / Higgsfield / any) and pick **16:9 landscape**.",
     "2. Save the image with its number as the name: `001.png`, `002.png` … (jpg/webp also fine).",
     "   Can't rename on the phone? Generate strictly in order and tell me; I'll sort by time.",

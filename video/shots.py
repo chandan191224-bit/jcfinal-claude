@@ -6,9 +6,10 @@ Run `python3 video/tools/build_prompts.py` to regenerate prompts.md and shots.js
 """
 
 STYLE = (
-    "2D hand-painted anime film still, Studio Ghibli inspired art style, soft watercolor "
-    "backgrounds, gentle cel shading, warm cinematic lighting, rich detail, 16:9 widescreen, "
-    "no text, no letters, no watermark"
+    "photorealistic cinematic film still, historical epic movie scene, realistic people and "
+    "period-accurate costumes, natural skin texture, dramatic natural lighting, shot on 35mm "
+    "lens, shallow depth of field, rich detail, 8k, 16:9 widescreen, not cartoon, not anime, "
+    "not illustration, no text, no letters, no watermark"
 )
 
 # Recurring characters: the same description every time keeps their look consistent.
@@ -33,7 +34,7 @@ P = {}
 
 # ---------------- HOOK ----------------
 P[1] = [
-    "A procession of ghostly kings from different eras (Rajput, Sultan, Mughal, British) climbing a hill toward a glowing golden throne above medieval Delhi, golden hour",
+    "A procession of kings from different eras (Rajput, Sultan, Mughal, British) walking toward a golden throne on a hill above medieval Delhi, golden hour, epic",
     "Close-up of a jewelled crown being placed on a king's head in a grand hall, crowds bowing, triumphant",
     f"The {ZAFAR} sitting alone in a tiny bare room with one small window, dim blue light, deep sadness",
     "A small patch of bare earth under a lonely tree in a foreign land, a single fallen flower, soft rain, melancholy",
@@ -47,7 +48,7 @@ P[2] = [
 ]
 P[3] = [
     "Dreamlike skyline of Delhi through the ages: Qutub Minar, Red Fort, Jama Masjid domes, India Gate and a metro train together under a glowing sunset, birds flying",
-    "Seven translucent ghost cities stacked in layers over the same piece of land, epic symbolic painting",
+    "Ruins of several ancient forts and walls scattered across the same landscape of Delhi, aerial drone shot at sunset",
     "A storyteller's old map of Delhi unrolling on a wooden table with a lamp, compass and quill, unreadable labels",
 ]
 
@@ -64,7 +65,7 @@ P[5] = [
     "Wooden boats carrying goods on the Yamuna, early river trade, warm afternoon",
     "Rocky Aravalli ridge hills covered with thorny scrub forest beside the plain, wide shot",
     "The rocky ridge seen as a natural stone wall protecting a small settlement behind it, guards on rocks",
-    "Bird's-eye illustrated landscape showing glowing trade routes from north, south, east and west crossing at a riverside settlement",
+    "Aerial drone shot of ancient dirt trade roads from four directions meeting at a riverside settlement, caravans visible",
     "Bullock carts and caravans meeting at a busy crossroads market near the river, travellers from many lands",
 ]
 P[6] = [
@@ -81,18 +82,18 @@ P[7] = [
     "A small early-1900s village of mud houses and huts inside the walls of an old fort, villagers and cows, nostalgic",
 ]
 P[8] = [
-    "A big question mark made of clouds above an old fort, curious whimsical mood",
+    "An old fort under brooding clouds at dawn, mysterious atmosphere",
     "Indian archaeologists in hats arriving at an old fort with tools and measuring poles, sunny day",
     "Archaeologists carefully digging deep rectangular trenches, brushes, buckets, sieves",
     "An archaeologist's hand brushing soil off an ancient object that begins to glow, wonder",
 ]
 P[9] = [
-    "Cross-section of earth showing nine colorful soil layers stacked on top of each other, each holding objects from a different era, educational storybook illustration",
+    "Wall of an excavation trench showing many distinct soil layers stacked on top of each other, pottery, bricks and coins embedded in different layers, documentary photo",
     "Pre-Mauryan village life: simple huts, potters at wheels, cattle, early iron tools",
     "Mauryan era city with wooden palaces and stone pillars, soldiers and citizens",
     "Kushana era traders with coins and caravans, Central Asian clothing, busy market",
     "Gupta, Rajput, Sultanate and Mughal eras shown as a quick sequence of stacked buildings on the same land",
-    "Generations of families living on the same spot through 2,500 years, ghostly overlapping figures",
+    "Double exposure of an ancient family and a modern family standing on the same spot, cinematic",
     "An ancient circular terracotta ring well uncovered in an excavation pit, archaeologists looking down into it",
     "Close-up of ancient grey pottery shards painted with simple black lines, laid on a cloth with a brush",
     "An ancient potter painting black patterns on grey clay pots, oil lamp, centuries before Christ",
@@ -144,7 +145,7 @@ P[16] = [
 P[17] = [
     "Workers building high rubble stone walls along rocky Aravalli hills",
     "The strong medieval fort Lal Kot on the hills, soldiers on the walls, banners, wide shot",
-    "A glowing number one hovering in the sky over the fort, symbolic, storybook style",
+    "Sunrise breaking over the walls of the first fort of Delhi, golden rays, epic",
 ]
 P[18] = [
     "A village grandmother telling a folk tale to children at night around a fire, cozy",
@@ -152,7 +153,7 @@ P[18] = [
     "An old court astrologer with a long beard and scrolls warning the king in a lamp-lit hall",
     "The king looking at the pillar with doubt and suspicion, frowning",
     "Workers pulling the iron pillar up from the ground at the king's order",
-    "The pillar tilting, loose and wobbly in its hole, everyone gasping, folk-tale mood",
+    "The pillar tilting loosely in its hole, courtiers gasping in shock, dramatic",
     "The astrologer shaking his head sadly, the king realizing his mistake",
     "Ancient stone inscriptions in a museum hall, scholars examining them, unreadable script",
     "An old stone slab inscription in a Rajasthan village, Bijolia, sunset",
@@ -191,13 +192,13 @@ P[23] = [
 P[24] = [
     "The celebrating city at night as enormous dark storm clouds roll in from the horizon, ominous",
     "An hourglass with sand falling over a map of Delhi, centuries passing, symbolic",
-    "A city being looted and burning, then rebuilt, shown as a cycle in a circular painting, symbolic",
+    "Workers rebuilding a burnt medieval city, smoke still rising from ruins behind them",
     f"A giant shadowy silhouette of a Turkish sultan in the clouds above Delhi",
     "A giant shadowy silhouette of a Mughal emperor in the clouds above Delhi",
     "A giant shadowy silhouette of a British officer with a pith helmet in the clouds above Delhi, the darkest of all",
 ]
 P[25] = [
-    "A calendar page turning in the wind, one year passing, storybook transition",
+    "Seasons changing over a battlefield plain, one year passing, time-lapse feel",
     f"{GHORI} leading a huge army of Turkish and Afghan cavalry across a plain, far larger than before",
     "The second battle of Tarain, Rajput army overwhelmed, dust and chaos, no gore",
     f"{PRITHVIRAJ} defeated and captured, head bowed, sorrowful sunset",
@@ -248,7 +249,7 @@ P[31] = [
 P[32] = [
     "Endless Mongol horsemen with bows riding across the open steppe, fur hats, banners",
     "A portrait of Genghis Khan on a throne in a yurt, descendants standing beside him",
-    "A map of the world with a dark wave spreading across Asia and Europe, storybook style",
+    "An old parchment map of Asia on a table lit by candles, Mongol arrows and daggers laid across it",
     "Mongol riders on a mountain pass looking down at the plains of Hindustan",
 ]
 P[33] = [
@@ -293,7 +294,7 @@ P[37] = [
 ]
 P[38] = [
     f"{MBT} on his throne with a map, pointing far to the south",
-    "A map showing a long glowing road from Delhi to Daulatabad in the Deccan, storybook style",
+    "A long dusty road stretching through dry Deccan land toward distant hills, aerial view",
     "Royal heralds announcing the order in Delhi's streets, shocked citizens",
     "Huge line of families, carts and animals marching on a dusty road toward a far-off fort, hot sun",
     "Exhausted travellers resting under a lone tree, some unable to go on, sorrowful, no gore",
@@ -304,7 +305,7 @@ P[38] = [
 P[39] = [
     "Silver coins being swapped for copper coins at a royal mint",
     "Piles of shiny copper token coins on a table",
-    "In many small homes people secretly making fake copper coins at night by candlelight, playful but chaotic",
+    "People secretly making fake copper coins at night by candlelight in a small home, tense",
     "A market flooded with mountains of copper coins, merchants refusing them, chaos",
 ]
 P[40] = [
@@ -318,7 +319,7 @@ P[40] = [
     "The Ashokan pillar standing on top of the Kotla ruins today, blue sky",
 ]
 P[41] = [
-    "A Tughlaq sultan's crown slipping, weakening rulers, symbolic",
+    "A tired aging sultan slumped on his throne, crown slipping, dim hall",
     "Dark clouds gathering over a fading medieval city, colors draining, a lamp going out",
 ]
 P[42] = [
@@ -379,7 +380,7 @@ P[49] = [
 P[50] = [
     "A Mughal queen in mourning planning a tomb with architects",
     "Humayun's Tomb, red sandstone and white marble mausoleum with a white dome in a garden with water channels, golden hour",
-    "The Taj Mahal in the distance as a ghostly echo of Humayun's Tomb design, symbolic",
+    "The Taj Mahal at dawn reflecting in the water, similar design to Humayun's Tomb",
 ]
 P[51] = [
     "A 13-year-old Mughal prince (young Akbar) sitting uncertainly on a big throne",
@@ -399,7 +400,7 @@ P[52] = [
 P[53] = [
     "Emperor Akbar as a grown man in the red sandstone courtyards of Fatehpur Sikri",
     "Akbar's grand court in Agra fort with nobles and scholars",
-    "A Mughal emperor's heart symbolically turning toward Delhi on a map, storybook style",
+    "A Mughal emperor looking at an old parchment map of Hindustan with his finger on Delhi",
 ]
 P[54] = [
     f"{SHAHJAHAN} standing on the banks of the Yamuna holding plans of a new city, sunrise",
@@ -431,7 +432,7 @@ P[58] = [
 ]
 P[59] = [
     "The aged Emperor Aurangzeb with a white beard on his deathbed, 1707, somber",
-    "Emperors changing quickly on the Mughal throne, crowns passing hand to hand, symbolic",
+    "A Mughal crown being passed from one hand to another over an empty throne, close-up",
     "Nobles whispering and plotting behind pillars of a dusty Mughal court, decline",
     "News of Delhi's wealth travelling on a messenger's horse across mountains toward Persia",
 ]
@@ -468,8 +469,8 @@ P[64] = [
     "Mahadji Shinde escorting the old Mughal emperor Shah Alam II on an elephant back into Delhi",
     "Shah Alam II sitting on the throne again, Maratha soldiers guarding him",
     "Delhi townspeople joking and laughing at a tea stall about the tiny empire",
-    "A tiny glowing patch on a big old map between Delhi and a village called Palam, humorous storybook illustration, unreadable labels",
-    "A short road from the Red Fort to a small village with fields, the whole empire, comic irony",
+    "An old parchment map with a tiny area around Delhi marked in red ink, a weak emperor's hand on it, unreadable labels",
+    "A short dusty road from the walls of Delhi to a small village with fields, ironic emptiness, wide shot",
 ]
 P[65] = [
     "A big East India Company sailing ship arriving at an Indian port, merchants unloading crates",
@@ -495,7 +496,7 @@ P[69] = [
     f"The {ZAFAR} looking out from a palace window, surprised",
     f"The {ZAFAR} on his throne surrounded by excited sepoys asking him to lead them",
     f"The {ZAFAR} writing poetry at his desk with a quill, a gentle man",
-    "A map of India lighting up with flames of revolt in many places, storybook style",
+    "Several towns burning at night across the plains of North India, seen from a hill, revolt spreading",
 ]
 P[70] = [
     "British army camped on the Delhi Ridge, tents and cannons, siege",
@@ -529,13 +530,13 @@ P[74] = [
     "King George V and Queen Mary in royal robes on golden thrones at the Durbar",
     "The king standing and making an announcement, the huge crowd gasping",
     "Angry protests in Calcutta streets after the Partition of Bengal, crowds with banners",
-    "A map of India with a glowing path from Calcutta in the east to Delhi in the centre, unreadable labels",
-    "Delhi at the heart of India shown as a glowing point at the centre of the map",
-    "A crown hovering over Delhi on a map, the power of whoever rules Delhi, symbolic",
+    "A British official tracing a line on an old map of India from Calcutta to Delhi, close-up, unreadable labels",
+    "A pin placed on Delhi in the centre of an old map of India, candlelight, close-up",
+    "A British royal crown resting on an old map of India over Delhi, dramatic still life",
 ]
 P[75] = [
     "British architects Edwin Lutyens and Herbert Baker in suits with blueprints on Raisina Hill",
-    "Empty rocky land of Raisina Hill with wind in the grass, a new city imagined in ghostly lines",
+    "Empty rocky land of Raisina Hill with wind in the grass and survey flags, 1912",
     "Thousands of Indian workers building the grand domed Viceroy's House",
     "The Viceroy's House (Rashtrapati Bhavan) with its great dome and columns at golden hour",
     "Long grand corridors and many rooms inside the palace, a lost visitor wandering",
@@ -546,7 +547,7 @@ P[75] = [
 P[76] = [
     "February 1931 inauguration ceremony of New Delhi with British officials and decorated stage",
     "Lord Irwin in viceroy uniform giving a speech",
-    "Eight translucent cities lined up one after another from ancient to New Delhi, symbolic",
+    "Aerial view of New Delhi's grand avenues with old ruins visible in the distance, 1931",
     "New Delhi's wide tree-lined avenues with old cars and bicycles, 1930s",
 ]
 P[77] = [
@@ -568,7 +569,7 @@ P[78] = [
 ]
 P[79] = [
     "Celebration lights in Delhi, but smoke rising on the horizon, mixed emotions",
-    "A new border line drawn across a map of Punjab, torn paper, storybook style",
+    "A British official's hand drawing a line in ink across a map of Punjab, close-up, unreadable labels",
 ]
 P[80] = [
     "A crowded refugee train with people on the roof crossing a dusty plain at dusk, silhouettes",
@@ -584,7 +585,7 @@ P[81] = [
 P[82] = [
     "A small 1940s Delhi with low buildings, calm",
     "Rows of tents and new houses spreading outwards from the city, aerial view",
-    "An illustrated bar chart made of tiny houses doubling in height, storybook style, no text",
+    "Rows of new houses and tents spreading quickly across open land around Delhi, aerial view, 1950",
     "Crowded streets of 1951 Delhi with many new faces",
 ]
 P[83] = [
@@ -608,7 +609,7 @@ P[84] = [
 P[85] = [
     "1950s New Delhi government buildings with old cars and bicycles on wide roads",
     "Leaders signing documents in a government office, 1956, Delhi becomes a Union Territory",
-    "A map of India with Delhi highlighted as a special territory, storybook style",
+    "Officials studying a large map of India with Delhi circled in red, government office, 1950s",
     "Parliament of India debating, members raising hands, 1991",
     "The Delhi Legislative Assembly building with lawns, new legislators arriving, 1993",
     "Delhi citizens voting for their own assembly, happy faces",
@@ -646,7 +647,7 @@ P[89] = [
 P[90] = [
     "Aerial view of modern Delhi as a gigantic city stretching to the horizon, highways and high-rises at dusk",
     "A massive crowd of ordinary people in a modern Delhi street, very dense, energetic",
-    "A globe with four huge cities glowing, Delhi among them, storybook style",
+    "Night satellite view of North India with Delhi as a massive glowing patch of lights",
     "The ghost of an invading army fading away over Delhi while grey smog creeps in",
     "Delhi's skyline wrapped in smog with a drop of dirty water in the foreground, symbolic",
 ]
@@ -656,7 +657,7 @@ P[91] = [
     "India Gate wrapped in thick smog, people wearing masks",
     "Children wearing masks going to school in the smog",
     "A warning board and air quality monitor glowing on a Delhi street, no readable text",
-    "Mughal emperors and Pandavas as ghostly figures looking at the Yamuna sadly",
+    "An old boatman looking sadly at the polluted Yamuna at dawn, ancient ghats behind him",
     "Toxic white foam floating on the Yamuna river like snow near Kalindi Kunj bridge",
     "Local people standing at the riverbank looking at the foam, worried",
     "A grand ribbon-cutting ceremony for river projects with officials and decorations",
@@ -664,10 +665,10 @@ P[91] = [
     "A clean blue Yamuna imagined in the future with gardens and boats, hopeful vision",
 ]
 P[92] = [
-    f"Ghostly figures of {TIMUR}, {NADIR} and a British officer fading into the sky above Delhi",
+    f"Old paintings of {TIMUR}, {NADIR} and a British officer hanging in a dusty museum hall",
     "Delhi choking under smoke, garbage and crowds, a heavy dark cloud",
-    "Ghostly translucent images of all the old cities of Delhi floating in the sky above modern Delhi, dreamlike",
-    "A city rising from ruins seven times, shown as seven glowing rings, symbolic",
+    "Double exposure of old Delhi forts and monuments over the modern Delhi skyline, cinematic",
+    "Ancient ruins in the foreground and modern Delhi towers rising behind them at sunrise",
     "A young child on a rooftop in old Delhi looking at a hazy sunrise, kites in the sky, quiet hope",
     "The Qutub Minar, Red Fort and India Gate at sunrise with the sky slowly clearing, final shot",
 ]
