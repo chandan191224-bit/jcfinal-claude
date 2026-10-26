@@ -5,6 +5,7 @@ sys.path.insert(0, HERE)
 from shots import SHOTS, STYLE
 
 GAP = 0.4  # seconds of silence between narration paragraphs
+MIN_SHOT = 1.5  # seconds
 paras = {p["id"]: p for p in json.load(open(os.path.join(HERE, "paragraphs.json"), encoding="utf-8"))}
 missing = sorted(set(paras) - {pid for pid, _ in SHOTS})
 assert not missing, f"paragraphs without a shot: {missing}"
@@ -31,6 +32,13 @@ if all("vo_start" in p for p in paras.values()):
         for j, i in enumerate(idxs):
             shots.append({"n": i + 1, "image": f"{i + 1:03d}", "paragraph": pid, "section": paras[pid]["section"],
                           "start": round(a + (b - a) * j / len(idxs), 3), "duration": round((b - a) / len(idxs), 3)})
+    # no picture shorter than MIN_SHOT: borrow time from the next one
+    for a, b in zip(shots, shots[1:]):
+        if a["duration"] < MIN_SHOT:
+            end = b["start"] + b["duration"]
+            b["start"] = round(a["start"] + MIN_SHOT, 3)
+            a["duration"] = MIN_SHOT
+            b["duration"] = round(end - b["start"], 3)
     t = vo_len
 else:
     # generated voice: one clip per paragraph with a short gap after each

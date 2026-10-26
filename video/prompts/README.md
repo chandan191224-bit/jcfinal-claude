@@ -1,14 +1,14 @@
 # Image prompts: दिल्ली का इतिहास
 
-**449 images**, one new picture every ~3.5 seconds of a 26:15 video.
+**449 images**, one new picture every ~3.5 seconds of a 21:57 video.
 
 | Batch | Images | Video time |
 |---|---|---|
-| [batch-1.md](batch-1.md) | 001–090 | 0:00–5:25 |
-| [batch-2.md](batch-2.md) | 091–180 | 5:25–10:32 |
-| [batch-3.md](batch-3.md) | 181–270 | 10:32–15:49 |
-| [batch-4.md](batch-4.md) | 271–360 | 15:49–21:05 |
-| [batch-5.md](batch-5.md) | 361–449 | 21:05–26:15 |
+| [batch-1.md](batch-1.md) | 001–090 | 0:00–4:36 |
+| [batch-2.md](batch-2.md) | 091–180 | 4:36–8:57 |
+| [batch-3.md](batch-3.md) | 181–270 | 8:57–13:13 |
+| [batch-4.md](batch-4.md) | 271–360 | 13:13–17:40 |
+| [batch-5.md](batch-5.md) | 361–449 | 17:40–21:57 |
 
 ## How to do it
 
