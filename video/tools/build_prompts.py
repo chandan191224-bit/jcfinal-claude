@@ -1,5 +1,5 @@
 """Build prompts.md (for generating images on the phone) and shots.json (timing for Remotion)."""
-import json, os, sys
+import json, os, subprocess, sys
 HERE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, HERE)
 from shots import SHOTS, STYLE
@@ -14,17 +14,37 @@ assert [pid for pid, _ in SHOTS] == sorted(pid for pid, _ in SHOTS), "shots out 
 by_para = {}
 for i, (pid, _) in enumerate(SHOTS):
     by_para.setdefault(pid, []).append(i)
-t, shots, audio = 0.0, [], []
-for pid in sorted(paras):
-    p = paras[pid]
-    audio.append({"file": p["audio"], "start": round(t, 3), "duration": p["duration"]})
-    idxs = by_para[pid]
-    span = p["duration"] + GAP
-    for k, i in enumerate(idxs):
-        shots.append({"n": i + 1, "image": f"{i + 1:03d}", "paragraph": pid,
-                      "section": p["section"], "start": round(t + span * k / len(idxs), 3),
-                      "duration": round(span / len(idxs), 3)})
-    t += span
+shots, audio = [], []
+if all("vo_start" in p for p in paras.values()):
+    # the user's own voiceover: one audio file, paragraph times measured by align_voiceover.py
+    order = sorted(paras)
+    vo_len = float(subprocess.run(["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0",
+                                   os.path.join(HERE, "remotion", "public", "audio", "voiceover.mp3")],
+                                  capture_output=True, text=True).stdout)
+    audio.append({"file": "voiceover.mp3", "start": 0.0, "duration": round(vo_len, 3)})
+    bounds = {pid: paras[pid]["vo_start"] for pid in order}
+    bounds[order[0]] = 0.0
+    for k, pid in enumerate(order):
+        a = bounds[pid]
+        b = bounds[order[k + 1]] if k + 1 < len(order) else vo_len
+        idxs = by_para[pid]
+        for j, i in enumerate(idxs):
+            shots.append({"n": i + 1, "image": f"{i + 1:03d}", "paragraph": pid, "section": paras[pid]["section"],
+                          "start": round(a + (b - a) * j / len(idxs), 3), "duration": round((b - a) / len(idxs), 3)})
+    t = vo_len
+else:
+    # generated voice: one clip per paragraph with a short gap after each
+    t = 0.0
+    for pid in sorted(paras):
+        p = paras[pid]
+        audio.append({"file": p["audio"], "start": round(t, 3), "duration": p["duration"]})
+        idxs = by_para[pid]
+        span = p["duration"] + GAP
+        for k, i in enumerate(idxs):
+            shots.append({"n": i + 1, "image": f"{i + 1:03d}", "paragraph": pid,
+                          "section": p["section"], "start": round(t + span * k / len(idxs), 3),
+                          "duration": round(span / len(idxs), 3)})
+        t += span
 json.dump({"total": round(t + 2.0, 3), "audio": audio, "shots": shots},
           open(os.path.join(HERE, "remotion", "src", "shots.json"), "w"), indent=1)
 
